@@ -1,7 +1,7 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppText, Button, Heading, StatusBadge } from '../../components';
+import { Button, Heading, StatusBadge } from '../../components';
 import type { UnlockStatus } from '../../features/ritual/ritualController';
 import { useRitual, useServices } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
