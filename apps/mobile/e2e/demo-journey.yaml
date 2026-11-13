@@ -13,8 +13,8 @@ appId: com.rabbai.app
 - tapOn: "Continue"
 - assertVisible: "Today's verse"
 - tapOn: "Continue"
-- tapOn: "Social feed (demo)"
-- tapOn: "Short videos (demo)"
+- tapOn: "Social feed \\(demo\\)"
+- tapOn: "Short videos \\(demo\\)"
 - tapOn: "Continue"
 - assertVisible: "When should your ritual start?"
 - tapOn:
@@ -22,7 +22,7 @@ appId: com.rabbai.app
 - inputText: "30"
 - hideKeyboard
 - tapOn: "Save schedule"
-- assertVisible: "Restricted (simulated)"
+- assertVisible: "Restricted \\(simulated\\)"
 - tapOn: "Start ritual"
 - tapOn: "I have read this"
 - tapOn: "Amen"

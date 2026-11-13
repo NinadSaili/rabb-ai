@@ -15,7 +15,7 @@ on:
         type: boolean
   push:
     branches: ['claude/**']
-    paths: ['apps/mobile/**', 'packages/**', '.github/workflows/android.yml', 'pnpm-lock.yaml']
+    paths: ['apps/mobile/**', '!apps/mobile/e2e/**', 'packages/**', '.github/workflows/android.yml', 'pnpm-lock.yaml']
 
 jobs:
   apk:
