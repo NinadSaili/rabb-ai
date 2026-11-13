@@ -1,5 +1,5 @@
-import { addDays, nextLocalMidnight, nextRitualDayStart, parseDate, ritualDayOf, weekdayOf } from './day';
-import { wallToInstant } from './tz';
+import { addDays, nextLocalMidnight, nextRitualDayStart, parseDate, ritualDayOf, weekdayOf } from './day.ts';
+import { wallToInstant } from './tz.ts';
 
 export type UnlockUntil = 'window_end' | 'midnight';
 

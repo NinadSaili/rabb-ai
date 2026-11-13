@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { idempotencyKey, uuid } from './common';
+import { idempotencyKey, uuid } from './common.ts';
 
 export const schedule = z.object({
   id: uuid,

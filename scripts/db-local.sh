@@ -19,6 +19,7 @@ ensure_server() {
 reset() {
   ensure_server
   as_pg "psql -X -q -c 'drop database if exists $DB' -c 'create database $DB'"
+  as_pg "psql -X -q -c \"alter role postgres password 'postgres'\""
   as_pg "psql -X -q -d $DB -c 'create extension if not exists pgtap'"
   run_file() { as_pg "psql -v ON_ERROR_STOP=1 -q -X -d $DB -f '$PWD/$1'"; }
   run_file supabase/tests/support/00-supabase-stub.sql

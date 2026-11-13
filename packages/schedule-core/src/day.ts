@@ -1,4 +1,4 @@
-import { wallClockAt, wallToInstant } from './tz';
+import { wallClockAt, wallToInstant } from './tz.ts';
 
 /** Ritual day starts at 03:00 local wall clock time (see PRODUCT_REQUIREMENTS R-DAY). */
 export const RITUAL_DAY_START_HOUR = 3;

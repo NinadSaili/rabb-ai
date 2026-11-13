@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { scriptureReference, uuid } from './common';
+import { scriptureReference, uuid } from './common.ts';
 
 export const tutorRequest = z.object({
   thread_id: uuid.optional(),
@@ -32,6 +32,8 @@ export const tutorResponse = z.object({
   blocks: z.array(tutorBlock),
   /** Fixed message for crisis_support, declined and no_relevant_content. */
   fixed_message_id: z.string().nullable(),
+  /** Text of the fixed message, so crisis support never depends on client copy. */
+  fixed_message: z.string().nullable(),
   dropped_unverified_count: z.number().int().min(0),
 });
 export type TutorResponse = z.infer<typeof tutorResponse>;

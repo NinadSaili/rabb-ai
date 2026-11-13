@@ -1,13 +1,13 @@
 import type { ZodTypeAny } from 'zod';
 import { z } from 'zod';
-import { apiError, ERROR_CODES } from './common';
-import { deleteAccountRequest, deleteAccountResponse } from './account';
-import { habitsSummaryResponse } from './habits';
-import { answerRequest, answerResponse, quizRequest, quizResponse } from './learning';
-import { completeRequest, completeResponse, completeStepRequest, completeStepResponse, dailyRitualQuery, dailyRitualResponse, startRequest, startResponse } from './ritual';
-import { createScheduleRequest, createScheduleResponse, schedulesResponse } from './schedules';
-import { subscriptionStatusResponse, revenueCatEvent } from './subscription';
-import { tutorRequest, tutorResponse } from './tutor';
+import { apiError, ERROR_CODES } from './common.ts';
+import { deleteAccountRequest, deleteAccountResponse } from './account.ts';
+import { habitsSummaryResponse } from './habits.ts';
+import { answerRequest, answerResponse, quizRequest, quizResponse } from './learning.ts';
+import { completeRequest, completeResponse, completeStepRequest, completeStepResponse, dailyRitualQuery, dailyRitualResponse, startRequest, startResponse } from './ritual.ts';
+import { createScheduleRequest, createScheduleResponse, schedulesResponse } from './schedules.ts';
+import { subscriptionStatusResponse, revenueCatEvent } from './subscription.ts';
+import { tutorRequest, tutorResponse } from './tutor.ts';
 
 export interface EndpointSpec {
   method: 'GET' | 'POST';

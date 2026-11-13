@@ -86,6 +86,12 @@ Query parameters:
       "type": "string",
       "minLength": 2,
       "maxLength": 12
+    },
+    "prefetch_days": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 7,
+      "default": 7
     }
   },
   "additionalProperties": false
@@ -105,122 +111,146 @@ Response 200:
     "timezone": {
       "type": "string"
     },
-    "verse": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "reference": {
-          "type": "object",
-          "properties": {
-            "book": {
-              "type": "string",
-              "pattern": "^[1-3A-Z]{3}$"
-            },
-            "chapter": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 150
-            },
-            "verse_start": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 176
-            },
-            "verse_end": {
-              "type": "integer",
-              "minimum": 1,
-              "maximum": 176
-            }
+    "days": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "local_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
           },
-          "required": [
-            "book",
-            "chapter",
-            "verse_start"
-          ],
-          "additionalProperties": false
-        },
-        "text": {
-          "type": "string"
-        },
-        "translation": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "string",
-              "minLength": 2,
-              "maxLength": 12
+          "verse": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "reference": {
+                "type": "object",
+                "properties": {
+                  "book": {
+                    "type": "string",
+                    "pattern": "^[1-3A-Z]{3}$"
+                  },
+                  "chapter": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 150
+                  },
+                  "verse_start": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 176
+                  },
+                  "verse_end": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 176
+                  }
+                },
+                "required": [
+                  "book",
+                  "chapter",
+                  "verse_start"
+                ],
+                "additionalProperties": false
+              },
+              "text": {
+                "type": "string"
+              },
+              "translation": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 12
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "language": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 8
+                  },
+                  "license_name": {
+                    "type": "string"
+                  },
+                  "copyright_text": {
+                    "type": "string"
+                  },
+                  "attribution_text": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name",
+                  "language",
+                  "license_name",
+                  "copyright_text",
+                  "attribution_text"
+                ],
+                "additionalProperties": false
+              },
+              "theme": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
             },
-            "name": {
-              "type": "string"
-            },
-            "language": {
-              "type": "string",
-              "minLength": 2,
-              "maxLength": 8
-            },
-            "license_name": {
-              "type": "string"
-            },
-            "copyright_text": {
-              "type": "string"
-            },
-            "attribution_text": {
-              "type": "string"
-            }
+            "required": [
+              "id",
+              "reference",
+              "text",
+              "translation",
+              "theme"
+            ],
+            "additionalProperties": false
           },
-          "required": [
-            "code",
-            "name",
-            "language",
-            "license_name",
-            "copyright_text",
-            "attribution_text"
-          ],
-          "additionalProperties": false
+          "prayer": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "title": {
+                "type": "string"
+              },
+              "body": {
+                "type": "string"
+              },
+              "language": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "body",
+              "language"
+            ],
+            "additionalProperties": false
+          }
         },
-        "theme": {
-          "type": [
-            "string",
-            "null"
-          ]
-        }
+        "required": [
+          "local_date",
+          "verse",
+          "prayer"
+        ],
+        "additionalProperties": false
       },
-      "required": [
-        "id",
-        "reference",
-        "text",
-        "translation",
-        "theme"
-      ],
-      "additionalProperties": false
+      "minItems": 1,
+      "maxItems": 8
     },
-    "prayer": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "title": {
-          "type": "string"
-        },
-        "body": {
-          "type": "string"
-        },
-        "language": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "title",
-        "body",
-        "language"
-      ],
-      "additionalProperties": false
+    "schedule_id": {
+      "type": "string",
+      "format": "uuid"
     },
     "timer_seconds": {
       "anyOf": [
@@ -275,13 +305,6 @@ Response 200:
         }
       ]
     },
-    "prefetch_dates": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
-      }
-    },
     "server_time": {
       "type": "string",
       "format": "date-time"
@@ -290,11 +313,10 @@ Response 200:
   "required": [
     "local_date",
     "timezone",
-    "verse",
-    "prayer",
+    "days",
+    "schedule_id",
     "timer_seconds",
     "session",
-    "prefetch_dates",
     "server_time"
   ],
   "additionalProperties": false
@@ -315,6 +337,10 @@ Request body:
   "type": "object",
   "properties": {
     "schedule_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "session_id": {
       "type": "string",
       "format": "uuid"
     },
@@ -417,6 +443,10 @@ Request body:
       "type": "integer",
       "minimum": 0,
       "maximum": 86400000
+    },
+    "offline_queued": {
+      "type": "boolean",
+      "default": false
     },
     "client_timestamp": {
       "type": "string",
@@ -1297,6 +1327,12 @@ Response 200:
         "null"
       ]
     },
+    "fixed_message": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "dropped_unverified_count": {
       "type": "integer",
       "minimum": 0
@@ -1307,6 +1343,7 @@ Response 200:
     "kind",
     "blocks",
     "fixed_message_id",
+    "fixed_message",
     "dropped_unverified_count"
   ],
   "additionalProperties": false

@@ -1,4 +1,4 @@
-import { addDays, daysBetween, mondayOf } from './day';
+import { addDays, daysBetween, mondayOf } from './day.ts';
 
 /** One missed day per calendar week (Monday to Sunday) keeps a streak alive. Documented in PRODUCT_REQUIREMENTS R-STREAK. */
 export const STREAK_GRACE_DAYS_PER_WEEK = 1;

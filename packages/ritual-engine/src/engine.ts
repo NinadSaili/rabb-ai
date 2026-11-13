@@ -1,4 +1,4 @@
-import type { Rejection, RejectionCode, RitualEvent, RitualState, RitualStatus, TransitionResult } from './types';
+import type { Rejection, RejectionCode, RitualEvent, RitualState, RitualStatus, TransitionResult } from './types.ts';
 
 export const initialState: RitualState = Object.freeze({
   status: 'IDLE',

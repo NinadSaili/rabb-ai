@@ -1,0 +1,14 @@
+{
+  "imports": {
+    "zod": "npm:zod@3.24.1",
+    "postgres": "npm:postgres@3.4.5",
+    "jose": "npm:jose@5.9.6",
+    "@rabb/contracts": "../../packages/contracts/src/index.ts",
+    "@rabb/schedule-core": "../../packages/schedule-core/src/index.ts",
+    "@rabb/ritual-engine": "../../packages/ritual-engine/src/index.ts",
+    "@std/assert": "jsr:@std/assert@1"
+  },
+  "nodeModulesDir": "none",
+  "lint": { "rules": { "exclude": ["no-explicit-any"] } },
+  "test": { "include": ["**/*_test.ts"] }
+}

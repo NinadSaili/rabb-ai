@@ -16,8 +16,8 @@ import {
   windowsBetween,
   wallToInstant,
   isValidTimeZone,
-} from './index';
-import type { Completion, RitualSchedule } from './index';
+} from './index.ts';
+import type { Completion, RitualSchedule } from './index.ts';
 
 const Z = (iso: string): number => Date.parse(iso);
 const HOUR = 3_600_000;

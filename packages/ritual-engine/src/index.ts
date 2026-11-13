@@ -1,3 +1,3 @@
-export * from './types';
-export * from './engine';
-export * from './timer';
+export * from './types.ts';
+export * from './engine.ts';
+export * from './timer.ts';

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isoDate } from './common';
+import { isoDate } from './common.ts';
 
 export const dayStatus = z.enum(['completed', 'grace', 'missed', 'pending', 'none']);
 

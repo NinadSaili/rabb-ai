@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isoTimestamp } from './common';
+import { isoTimestamp } from './common.ts';
 
 export const subscriptionStatusResponse = z.object({
   entitlement: z.enum(['free', 'premium']),

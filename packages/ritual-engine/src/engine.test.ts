@@ -8,8 +8,8 @@ import {
   transition,
   unlockConditionMet,
   validateTimer,
-} from './index';
-import type { RitualEvent, RitualState, RitualStatus } from './index';
+} from './index.ts';
+import type { RitualEvent, RitualState, RitualStatus } from './index.ts';
 
 const START = (timer: number | null): RitualEvent => ({
   type: 'START',
