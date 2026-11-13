@@ -52,3 +52,21 @@ Mark each item `done`, `blocked (reason)` or `owner-pending`. Nothing is `done` 
 ## Beta plan
 
 Phase 1: 10 internal testers, 1 week, Android first. Phase 2: 50 external testers, 2 weeks. Feedback capture through an in app feedback link that opens a pre filled email or form with app version and device model only. Review weekly: time to first completed ritual, permission grant rate, D1 and D7 completion, crash free sessions.
+
+## RevenueCat sandbox testing
+
+Prerequisites: RevenueCat project with the entitlement `Rabb.ai Premium`, products `monthly` and `annual` attached to one offering marked current, public SDK keys in `apps/mobile/.env`, the webhook URL set to the `revenuecat-webhook` function with `REVENUECAT_WEBHOOK_SECRET` as the Authorization header value.
+
+App Store (iOS):
+1. In App Store Connect create the subscription group, products and a free trial introductory offer. Add a Sandbox Apple Account (Users and Access, Sandbox).
+2. On a physical device sign out of the App Store in Settings, then run a debug build. When the purchase sheet appears, sign in with the sandbox account.
+3. Buy the monthly product. Sandbox renews every few minutes and expires after a handful of renewals. Confirm the webhook delivered `INITIAL_PURCHASE`, a row exists in `subscriptions`, and `GET /v1/subscription/status` returns `premium`.
+4. Let it expire (or cancel in Settings, Subscriptions). Confirm `EXPIRATION` flips the status to `free`.
+5. Delete and reinstall the app, tap Restore purchases, confirm the entitlement returns.
+
+Google Play (Android):
+1. In Play Console create the subscription products and base plans with a free trial offer. Upload a build to the internal testing track, add licence testers (Setup, License testing) and add testers to the track.
+2. Install from the internal testing link on a device signed in with a licence tester account. Test purchases renew on a short accelerated schedule.
+3. Repeat steps 3 to 5 above. Also test a card decline test instrument to see `BILLING_ISSUE`, which the webhook maps to the grace status.
+
+Checks for both stores: price, billing period and trial terms on the paywall come from the store offering, restore works, terms and privacy links open, the app never shows premium until the server says so, and replaying a webhook event returns `duplicate` without changing state.
