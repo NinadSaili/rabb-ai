@@ -14,7 +14,8 @@
     "db:test": "bash scripts/db-test.sh",
     "functions:test": "bash scripts/functions-test.sh",
     "ai:evals": "bash scripts/ai-evals.sh",
-    "docs:api": "tsx scripts/generate-api-spec.ts"
+    "docs:api": "tsx scripts/generate-api-spec.ts",
+    "ai:ingest": "bash scripts/ai-ingest.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

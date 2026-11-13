@@ -54,7 +54,7 @@ Every mutation carries an `idempotency_key` (UUID v4 generated on the device whe
 
 ### R-OFFLINE Offline behaviour
 
-Today's content is cached (today plus 7 days prefetched). The ritual works offline. Steps queue in a persistent mutation queue (MMKV) in order. On reconnect the server reconciles with first completion wins: if a completed session already exists for (user, schedule, local_date), later completions return the first result and do not create another.
+Today's content is cached (today plus 7 days prefetched). The ritual works offline. The device generates the session id so steps can queue before the first sync. The server binds `local_date` at the time it receives the start request, so a ritual started offline before 03:00 and synced after 03:00 binds to the later date (R16). A queued request that already failed once is sent with `offline_queued: true`. Steps queue in a persistent mutation queue (MMKV) in order. On reconnect the server reconciles with first completion wins: if a completed session already exists for (user, schedule, local_date), later completions return the first result and do not create another.
 
 ### R-UNLOCK Unlock is a local OS action
 
@@ -69,7 +69,9 @@ A network failure never produces a "synced" claim or a "locked" claim. The word 
 ### R-DURATION Unlock duration and re-lock
 
 - Each schedule defines a restriction window (start time, end time, weekdays). Completing that schedule's ritual for the current local_date suspends restrictions until the end of the active window. The restriction window of the next occurrence re-applies restrictions at its start time.
-- Custom schedules may set `unlock_until: "midnight"`. Then restrictions stay suspended until local 00:00 even when the window runs longer, and resume at 00:00 for the remainder of the window.
+- Custom schedules may set `unlock_until: "midnight"`. The suspension then ends at the earlier of the window end and the next local 00:00. For a window that crosses midnight, restrictions resume at 00:00 for the rest of the window. The same ritual date cannot be completed twice, so the user cannot unlock again until the window ends, except through the emergency bypass. This is a deliberate user choice ("unlock until midnight") and is recorded as R17.
+- A completion before a window starts (same ritual date) suspends that window too (`suspensionAfterCompletion` in `schedule-core`), so the OS layer does not re-apply restrictions the user already earned.
+- A suspension never crosses the 03:00 ritual day rollover.
 - A new ritual day (03:00 local) never inherits the previous day's completion. Any window that starts or is still active after 03:00 and has no completed ritual for the new local_date restricts.
 - Overlapping schedules: most restrictive wins. Apps are restricted when any active window has an incomplete ritual for the current local_date. Each schedule needs its own completion. The selected app set is shared across schedules in v1.
 - What re-locks apps: start of a window with an incomplete ritual, the 03:00 day rollover while a window is active, user re-enabling restrictions, and permission restoration after revocation.

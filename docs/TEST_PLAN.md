@@ -49,6 +49,22 @@ VoiceOver and TalkBack walk through screens 1 to 22, Dynamic Type at the largest
 
 Cold start under 2.5 seconds on a mid range Android device. Ritual screen interactive under 1 second from cache. Measured with `react-native-performance` marks on device. Status BLOCKED until a device is available.
 
+## Current results (session 1)
+
+| Suite | Command | Result |
+|-------|---------|--------|
+| ritual-engine | `pnpm test` | 148 passed |
+| schedule-core | `pnpm test` | 50 passed |
+| contracts | `pnpm test` | 6 passed |
+| mobile (Jest, RNTL) | `pnpm test` | 105 passed |
+| pgTAP | `pnpm db:test` | 245 assertions in 7 files passed (local PostgreSQL 16 fallback runner, R11) |
+| Edge Functions and integration (Deno) | `pnpm functions:test` | 42 passed |
+| AI evals (40 prompts, MOCK provider) | `pnpm ai:evals` | 2 tests passed, 40 prompts |
+| Kotlin decision logic (JVM) | `pnpm --filter @rabb/mobile android:logic-test` | 22 passed |
+| Lint, typecheck | `pnpm lint`, `pnpm typecheck` | clean |
+
+Not run: Supabase CLI based `db reset` and `test db`, Android and iOS builds, Maestro flows, device checklists, accessibility audit on devices, performance budget, live OpenAI evals, RevenueCat sandbox.
+
 ## Exit rule
 
 A milestone closes only when the commands in `IMPLEMENTATION_PLAN.md` pass or each failure is recorded in `STATUS.md` with a blocker.

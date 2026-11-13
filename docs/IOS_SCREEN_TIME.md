@@ -100,3 +100,21 @@ Submit through the Family Controls (Distribution) request form for the app and e
 | Date | Device | iOS | Tester | Spike cases passed | Notes |
 |------|--------|-----|--------|--------------------|-------|
 | none recorded | | | | | BLOCKED: no device access |
+
+## Implementation map
+
+| Piece | File (apps/mobile/modules/rabb-blocking/ios) | State |
+|-------|----------------------------------------------|-------|
+| Shared App Group state (selection, suspension, windows, heartbeat) | `Shared/RabbSharedState.swift` | written, not compiled (no Xcode) |
+| Authorization, shield apply and remove, schedules, picker host | `BlockingController.swift` | written, not compiled |
+| Expo module bridge (all AppBlockingService methods) | `RabbBlockingModule.swift` | written, not compiled |
+| `SelectedAppsSummaryView` (SwiftUI `Label(token)`) | `SelectedAppsSummaryView.swift` | written, not compiled |
+| DeviceActivityMonitor extension | `ScreenTimeMonitor/DeviceActivityMonitorExtension.swift` | written, not compiled |
+| Shield configuration extension | `ShieldConfiguration/ShieldConfigurationExtension.swift` | written, not compiled |
+| Shield action extension (local notification on the secondary button) | `ShieldAction/ShieldActionExtension.swift` | written, not compiled |
+| Info.plist and entitlements per extension, app entitlements | `*/Info.plist`, `*/*.entitlements`, `../../ios/RabbApp/RabbApp.entitlements` | written |
+| iOS 16.0 deployment target, bundle id `com.rabbai.app`, `rabbai://` URL scheme, Expo Modules autolinking in Podfile | `apps/mobile/ios` | edited by hand, not built |
+
+Not done and BLOCKED on Xcode: creating the three extension targets in `RabbApp.xcodeproj`, adding `Shared/RabbSharedState.swift` to all four targets, signing and provisioning. Follow "Exact Xcode setup" above. Authorization and entitlement error mapping in `BlockingController.requestAuthorization` is a best guess to confirm in spikes S1 and S2.
+
+DeviceActivity limits (R19): intervals shorter than 15 minutes cannot be registered, and only the next 16 windows are registered. The app re-registers on launch and foreground.

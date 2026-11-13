@@ -87,3 +87,23 @@ Usage permission granted and revoked, overlay permission granted and revoked, se
 | Date | Device | Android | OEM skin | Cases passed | Notes |
 |------|--------|---------|----------|--------------|-------|
 | none recorded | | | | | BLOCKED: no device access |
+
+## Implementation map
+
+| Piece | File (apps/mobile/modules/rabb-blocking) | State |
+|-------|------------------------------------------|-------|
+| Decision logic (pure Kotlin, no Android imports) | `android/src/main/java/com/rabbai/blocking/logic/RestrictionDecision.kt` | IMPLEMENTED, 13 JVM tests pass (`pnpm --filter @rabb/mobile android:logic-test`) |
+| Tier resolver and unmet requirement list | `logic/TierResolver.kt` | IMPLEMENTED, 9 JVM tests pass |
+| Encrypted DataStore (Tink AES-256-GCM, Android Keystore master key) | `SecureStore.kt` | written, not compiled (no Android SDK) |
+| Permission reads and settings intents | `Permissions.kt` | written, not compiled |
+| Foreground detection service (UsageStatsManager polling) | `ForegroundDetectionService.kt` | written, not compiled |
+| Block screen with a way out (open app, bypass, go back) | `BlockActivity.kt` | written, not compiled |
+| Boot receiver and WorkManager watchdog | `BootReceiver.kt` | written, not compiled |
+| Expo module bridge | `RabbBlockingModule.kt`, `src/index.ts` | written, not compiled |
+| Manifest permissions, `<queries>`, service type `specialUse` | `android/src/main/AndroidManifest.xml` | written, not compiled |
+
+The JS layer (`apps/mobile/src/services/blocking`) defines the contract, reads capabilities, and falls back to `UnavailableBlockingService` (Tier 0, never claims a restriction) when the module is missing.
+
+Decision notes: restrictions are window based. Completing a ritual or using the emergency bypass writes `suspendedUntil`. Detection runs only while the screen is interactive. Revocation of Usage Access is noticed on the next tick and the status screen drops to Tier 0.
+
+CI runs the JVM logic tests on every push (`android-logic` job). Nothing else in this table has been built or run on a device. See `docs/STATUS.md`.
