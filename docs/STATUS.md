@@ -56,7 +56,7 @@ Labels: IMPLEMENTED (code and tests), MOCKED (external service replaced by a lab
 | iOS Screen Time: module, extensions, shared state | BLOCKED | Written, not compiled. Extension targets not in the Xcode project (no Xcode) |
 | iOS spike and Android spike | BLOCKED | Protocols with expected results are in the platform docs. No results recorded |
 | Accessibility audit on devices, performance budget | BLOCKED | Needs devices |
-| Release readiness items (privacy manifest file, store forms, TestFlight and Play tracks) | NOT_STARTED | Checklist drafted. Privacy manifest file not created. Owner accounts needed |
+| Release readiness items (privacy manifest file, store forms, TestFlight and Play tracks) | NOT_STARTED | Checklist drafted. The template `PrivacyInfo.xcprivacy` exists but has not been reviewed against the SDKs in use (MMKV, Sentry, PostHog, Notifee, RevenueCat). Owner accounts needed |
 
 ## Open blockers
 
