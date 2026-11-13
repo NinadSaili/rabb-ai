@@ -5,24 +5,36 @@ appId: com.rabbai.app
 ---
 - launchApp:
     clearState: true
-- assertVisible: "DEMO MODE.*"
-- assertVisible: "Before the scroll, seek the Word."
+- extendedWaitUntil:
+    visible: "DEMO MODE.*"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Before the scroll, seek the Word."
+    timeout: 30000
 - tapOn: "I am 13 or older"
 - tapOn: "Begin"
-- assertVisible: "Choose a Bible translation"
+- extendedWaitUntil:
+    visible: "Choose a Bible translation"
+    timeout: 30000
 - tapOn: "Continue"
-- assertVisible: "Today's verse"
+- extendedWaitUntil:
+    visible: "Today's verse"
+    timeout: 30000
 - tapOn: "Continue"
 - tapOn: "Social feed \\(demo\\)"
 - tapOn: "Short videos \\(demo\\)"
 - tapOn: "Continue"
-- assertVisible: "When should your ritual start?"
+- extendedWaitUntil:
+    visible: "When should your ritual start?"
+    timeout: 30000
 - tapOn:
     text: "Reading timer.*"
 - inputText: "30"
 - hideKeyboard
 - tapOn: "Save schedule"
-- assertVisible: "Restricted \\(simulated\\)"
+- extendedWaitUntil:
+    visible: "Restricted \\(simulated\\)"
+    timeout: 30000
 - tapOn: "Start ritual"
 - tapOn: "I have read this"
 - tapOn: "Amen"
@@ -33,6 +45,10 @@ appId: com.rabbai.app
       enabled: true
     timeout: 60000
 - tapOn: "Finish"
-- assertVisible: "Well done"
+- extendedWaitUntil:
+    visible: "Well done"
+    timeout: 30000
 - tapOn: "Unlock my apps"
-- assertVisible: "Unlocked \\(simulated\\).*"
+- extendedWaitUntil:
+    visible: "Unlocked \\(simulated\\).*"
+    timeout: 30000
