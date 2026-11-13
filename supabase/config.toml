@@ -1,0 +1,27 @@
+# Minimal Supabase CLI config. Run `supabase init` output may add more keys.
+project_id = "rabb-ai"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed/*.sql"]
+
+[auth]
+enable_anonymous_sign_ins = true
+site_url = "rabbai://auth"
+additional_redirect_urls = ["rabbai://auth/callback"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+
+[functions.revenuecat-webhook]
+verify_jwt = false
