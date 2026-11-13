@@ -1,0 +1,36 @@
+# Maestro flow for the DEMO MODE build (apk built with DEMO_MODE=1). NOT RUN: Maestro and a device or emulator are not
+# available in the authoring environment. The same journey is covered by src/__tests__/demoJourney.test.tsx (Jest, runs in CI).
+# Run on a device: maestro test apps/mobile/e2e/demo-journey.yaml
+appId: com.rabbai.app
+---
+- launchApp:
+    clearState: true
+- assertVisible: "DEMO MODE.*"
+- assertVisible: "Before the scroll, seek the Word."
+- tapOn: "I am 13 or older"
+- tapOn: "Begin"
+- assertVisible: "Choose a Bible translation"
+- tapOn: "Continue"
+- assertVisible: "Today's verse"
+- tapOn: "Continue"
+- tapOn: "Social feed (demo)"
+- tapOn: "Short videos (demo)"
+- tapOn: "Continue"
+- assertVisible: "When should your ritual start?"
+- tapOn:
+    text: "Reading timer.*"
+- inputText: "30"
+- hideKeyboard
+- tapOn: "Save schedule"
+- assertVisible: "Restricted (simulated)"
+- tapOn: "Start ritual"
+- tapOn: "I have read this"
+- tapOn: "Amen"
+- tapOn: "Start timer"
+- extendedWaitUntil:
+    visible: "Finish"
+    timeout: 40000
+- tapOn: "Finish"
+- assertVisible: "Well done"
+- tapOn: "Unlock my apps"
+- assertVisible: "Unlocked \\(simulated\\).*"

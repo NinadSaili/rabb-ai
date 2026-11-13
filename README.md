@@ -81,14 +81,25 @@ Edge Functions import the workspace packages by relative path through `supabase/
 
 ## Android
 
+Native app restrictions need a native build. Expo Go cannot run this app (it uses MMKV, Keychain, Notifee, RevenueCat and the Kotlin module in `apps/mobile/modules/rabb-blocking`), and the managed Expo workflow is not used. The options are:
+
+| Build | What it gives | How |
+|-------|---------------|-----|
+| Demo APK | Whole journey, offline, restrictions SIMULATED, placeholder scripture | GitHub Actions `android-apk` with "Build in DEMO MODE" ticked, or locally with `DEMO_MODE=1` (below) |
+| Native debug or release APK | Real native module, backend required, Android blocking is Tier 1 prototype (not verified on a device) | Same workflow with demo mode unticked and a filled `apps/mobile/.env` |
+
+Exact commands and prerequisites: `docs/ANDROID_BUILD.md`. Demo script and talking points: `docs/DEMO_GUIDE.md`.
+
 ```bash
-pnpm --filter @rabb/mobile assets:link          # link Inter and Newsreader fonts
-cd apps/mobile
-pnpm start                                      # Metro, in one terminal
-pnpm android                                    # build and run on a device or emulator
+# Local build (needs the Android SDK, JDK 17, Node 20, pnpm)
+pnpm install
+printf 'DEMO_MODE=1\n' > apps/mobile/.env          # demo build, no backend. Omit for a real build
+cd apps/mobile/android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a
+# APK: apps/mobile/android/app/build/outputs/apk/release/app-release.apk
+adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
-Android needs the Expo Modules autolinking edits already applied in `android/settings.gradle` (see `docs/ANDROID_BLOCKING.md`). Blocking needs a real device with Usage Access and overlay permissions. Capability tiers and OEM guidance are in `docs/ANDROID_BLOCKING.md`.
+Blocking needs a real device with Usage Access and overlay permissions. Capability tiers and OEM guidance are in `docs/ANDROID_BLOCKING.md`.
 
 ## iOS
 

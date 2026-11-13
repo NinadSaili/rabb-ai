@@ -16,7 +16,7 @@ react {
     root = file("../../")
     reactNativeDir = rnDir
     codegenDir = nodeResolve("require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })").getParentFile()
-    cliFile = nodeResolve("require.resolve('react-native/cli.js')")
+    cliFile = new File(rnDir, "cli.js")
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")

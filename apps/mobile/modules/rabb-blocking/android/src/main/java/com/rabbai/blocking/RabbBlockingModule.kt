@@ -3,7 +3,6 @@ package com.rabbai.blocking
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import com.rabbai.blocking.logic.Requirement
 import com.rabbai.blocking.logic.TierInput
 import com.rabbai.blocking.logic.TierResolver
 import com.rabbai.blocking.logic.Window
@@ -91,7 +90,7 @@ class RabbBlockingModule : Module() {
                 activity.runOnUiThread {
                     AlertDialog.Builder(activity)
                         .setTitle(R.string.rabb_picker_title)
-                        .setMultiChoiceItems(apps.map { it.second }.toTypedArray(), checked) { _, i, on -> checked[i] = on }
+                        .setMultiChoiceItems(apps.map { it.second }.toTypedArray<CharSequence>(), checked) { _, i, on -> checked[i] = on }
                         .setPositiveButton(R.string.rabb_picker_done) { _, _ ->
                             val chosen = apps.indices.filter { checked[it] }.map { apps[it].first }.toSet()
                             scope.launch { store.setSelectedPackages(chosen); promise.resolve(mapOf("result" to "selected", "summary" to mapOf("count" to chosen.size, "categoryCount" to 0, "webDomainCount" to 0))) }
