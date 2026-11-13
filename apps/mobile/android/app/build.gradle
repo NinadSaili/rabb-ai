@@ -2,11 +2,21 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+def nodeResolve = { String expr ->
+    new File(providers.exec { workingDir(rootDir); commandLine("node", "--print", expr) }.standardOutput.asText.get().trim())
+}
+def rnDir = nodeResolve("require.resolve('react-native/package.json')").getParentFile()
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
  */
 react {
+    // Monorepo: tools are hoisted to the repository root.
+    root = file("../../")
+    reactNativeDir = rnDir
+    codegenDir = nodeResolve("require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })").getParentFile()
+    cliFile = nodeResolve("require.resolve('react-native/cli.js')")
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")

@@ -1,0 +1,51 @@
+name: android-apk
+# Builds the Android APK on a GitHub runner (the authoring environment has no Android SDK).
+# Run manually: Actions, android-apk, Run workflow. The APK is attached to the run as an artifact.
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: 'Gradle variant'
+        default: 'Release'
+        type: choice
+        options: [Release, Debug]
+      demo_mode:
+        description: 'Build in DEMO MODE (offline, simulated restrictions, no backend)'
+        default: true
+        type: boolean
+  push:
+    branches: ['claude/**']
+    paths: ['apps/mobile/**', 'packages/**', '.github/workflows/android.yml', 'pnpm-lock.yaml']
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: android-actions/setup-android@v3
+      - name: Install SDK components
+        run: |
+          sdkmanager --install "platforms;android-37" "build-tools;37.0.0" "ndk;27.1.12297006" "cmake;3.22.1" >/dev/null
+      - run: pnpm install --frozen-lockfile
+      - name: Client environment (public values only, none needed in demo mode)
+        run: |
+          echo "DEMO_MODE=${{ (github.event.inputs.demo_mode || 'true') == 'true' && '1' || '' }}" > apps/mobile/.env
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Build APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assemble${{ github.event.inputs.variant || 'Release' }} -PreactNativeArchitectures=arm64-v8a --stacktrace
+      - name: Collect APK
+        run: |
+          mkdir -p out && find apps/mobile/android/app/build/outputs/apk -name "*.apk" -exec cp {} out/ \;
+          ls -la out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rabbai-android-apk
+          path: out/*.apk
+          if-no-files-found: error

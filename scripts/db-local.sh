@@ -22,7 +22,7 @@ reset() {
   as_pg "psql -X -q -c \"alter role postgres password 'postgres'\""
   as_pg "psql -X -q -d $DB -c 'create extension if not exists pgtap'"
   run_file() { as_pg "psql -v ON_ERROR_STOP=1 -q -X -d $DB -f '$PWD/$1'"; }
-  run_file supabase/tests/support/00-supabase-stub.sql
+  run_file scripts/sql/00-supabase-stub.sql
   for f in supabase/migrations/*.sql; do run_file "$f"; done
   for f in supabase/seed/*.sql; do [ -e "$f" ] && run_file "$f"; done
   echo "local database $DB reset"

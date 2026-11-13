@@ -49,10 +49,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: pnpm }
       - run: pnpm install --frozen-lockfile
-      - run: sudo apt-get update && sudo apt-get install -y postgresql-client postgresql-16-pgtap
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
       - name: Apply stubs, migrations and seed to the service database
         run: |
-          for f in supabase/tests/support/00-supabase-stub.sql supabase/migrations/*.sql supabase/seed/*.sql; do
+          for f in scripts/sql/00-supabase-stub.sql supabase/migrations/*.sql supabase/seed/*.sql; do
             PGPASSWORD=postgres psql -v ON_ERROR_STOP=1 -q -h 127.0.0.1 -U postgres -d rabb_local -f "$f"
           done
       - run: RABB_SKIP_DB_RESET=1 RABB_TEST_DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/rabb_local pnpm functions:test
