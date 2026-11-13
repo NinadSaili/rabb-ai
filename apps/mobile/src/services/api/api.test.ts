@@ -36,7 +36,7 @@ describe('api client', () => {
 });
 
 describe('ritual sender', () => {
-  const ok = { session_id: '123e4567-e89b-42d3-a456-426614174001', local_date: '2026-03-10', status: 'completed', completed_at: '2026-03-10T10:00:00Z', first_completion_won: true, current_streak: 1, longest_streak: 1, replayed: false };
+  const ok = { session_id: '123e4567-e89b-42d3-a456-426614174001', local_date: '2026-03-10', status: 'completed', completed_at: '2026-03-10T10:00:00Z', first_completion_won: true, timer_verified: null, current_streak: 1, longest_streak: 1, replayed: false };
   it('uses the mutation id as the idempotency key and reports ok', async () => {
     let body: Record<string, unknown> = {};
     const send = createRitualSender(client((async (_u: string, init?: RequestInit) => { body = JSON.parse(init?.body as string); return res(200, ok); }) as never));

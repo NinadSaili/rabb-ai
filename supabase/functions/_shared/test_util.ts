@@ -12,6 +12,9 @@ const DB_URL = Deno.env.get('RABB_TEST_DB_URL') ?? 'postgresql://postgres:postgr
 export const sql = postgres(DB_URL, { max: 4, prepare: false, onnotice: () => {} });
 export const db = new Db(sql);
 
+// Tests run against the DEV ONLY fixtures, which are served only when this flag is on (never in production).
+await sql`update public.feature_flags set enabled = true where key = 'allow_dev_content'`;
+
 export async function token(userId: string, role = 'authenticated'): Promise<string> {
   return await new SignJWT({ role }).setProtectedHeader({ alg: 'HS256' }).setSubject(userId).setIssuedAt().setExpirationTime('1h').sign(new TextEncoder().encode(JWT_SECRET));
 }

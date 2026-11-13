@@ -32,6 +32,7 @@ export const en = {
     verified: 'Unlocked (verified by your device)',
     pending: 'Unlocked on this device. Syncing your progress when you are online.',
     failed: 'Unlock failed: {{reason}}',
+    notRecorded: 'Unlocked on this device, but today’s ritual could not be recorded ({{reason}}). It may not count toward your streak.',
     notEnforced: 'Your ritual is recorded. No apps were restricted on this device, so there was nothing to unlock.',
     retry: 'Retry unlock',
     bypass: 'Emergency bypass',
@@ -53,6 +54,10 @@ export const en = {
     },
   },
   capability: {
+    blockingOff: 'App blocking is turned off. Nothing is restricted.',
+    turnOff: 'Turn off app blocking',
+    turnOn: 'Turn on app blocking',
+    bypassFailed: 'The bypass could not be applied. Turn off app blocking here, or remove Rabb.ai permissions in your device settings.',
     title: 'What is enforced on this device',
     tier0: 'Reminders only. Rabb.ai cannot restrict apps on this device.',
     tier1: 'Open apps you chose are detected and covered with a reading prompt. Enforcement depends on your device settings and is not guaranteed.',

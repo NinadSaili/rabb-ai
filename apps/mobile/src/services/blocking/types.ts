@@ -71,6 +71,11 @@ export interface AppBlockingService {
   getRestrictionStatus(): Promise<NativeStatus>;
   /** Suspends restrictions until the given epoch ms (emergency bypass and post ritual unlock). */
   suspendUntil(untilMs: number): Promise<NativeStatus>;
+  /**
+   * User controlled off switch. Stops detection and monitors, clears registered windows and removes any shield.
+   * Users can always turn blocking off. Registering windows again is the app's job and only happens when the user turns blocking back on.
+   */
+  disableBlocking(): Promise<NativeStatus>;
   /** Remote feature flags (Supabase feature_flags). Android Tier 1 and Tier 2 default off. */
   setFeatureFlags?(flags: { tier1: boolean; accessibility: boolean }): Promise<void>;
 }

@@ -20,9 +20,15 @@ export type SendResult =
 
 export type Sender = (m: Mutation) => Promise<SendResult>;
 
+export interface DroppedMutation {
+  id: string;
+  code: string;
+  kind: MutationKind;
+}
+
 export interface FlushReport {
   sent: number;
-  dropped: { id: string; code: string }[];
+  dropped: DroppedMutation[];
   remaining: number;
   stoppedOnRetry: boolean;
 }
@@ -60,7 +66,7 @@ export class MutationQueue {
   peek(): Mutation[] {
     return this.read();
   }
-  droppedLog(): { id: string; code: string }[] {
+  droppedLog(): DroppedMutation[] {
     return getJson(this.store, DROPPED_KEY, []);
   }
 
@@ -91,8 +97,9 @@ export class MutationQueue {
             this.rewriteSessionId(head.payload.session_id, result.serverSessionId);
           }
         } else {
-          report.dropped.push({ id: head.id, code: result.code });
-          setJson(this.store, DROPPED_KEY, [...this.droppedLog(), { id: head.id, code: result.code }].slice(-50));
+          const entry: DroppedMutation = { id: head.id, code: result.code, kind: head.kind };
+          report.dropped.push(entry);
+          setJson(this.store, DROPPED_KEY, [...this.droppedLog(), entry].slice(-50));
         }
       }
     } finally {

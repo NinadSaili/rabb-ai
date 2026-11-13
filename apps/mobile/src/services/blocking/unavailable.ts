@@ -42,6 +42,9 @@ export class UnavailableBlockingService implements AppBlockingService {
   getRestrictionStatus() {
     return Promise.resolve(this.status());
   }
+  disableBlocking() {
+    return Promise.resolve(this.status());
+  }
   suspendUntil() {
     return Promise.resolve(this.status());
   }

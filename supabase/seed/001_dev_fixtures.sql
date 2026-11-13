@@ -44,3 +44,6 @@ values
   ('Steady my day', 'Father, steady my steps today. Let what I read settle in me and shape what I say and do. Amen.', 'en', 'guidance', 'approved', 'DEV FIXTURE', now(), true, 2),
   ('Rest in you', 'God, I bring my tiredness to you. Teach me to rest in your care and to trust you with what I cannot carry. Amen.', 'en', 'rest', 'approved', 'DEV FIXTURE', now(), true, 3)
 on conflict do nothing;
+
+-- DEV ONLY: allow the fixtures above to be served. Production databases are never seeded and this flag stays false there.
+update public.feature_flags set enabled = true where key = 'allow_dev_content';

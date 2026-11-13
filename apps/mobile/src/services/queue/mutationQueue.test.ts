@@ -49,9 +49,9 @@ describe('MutationQueue', () => {
     q.enqueue('ritual.complete_step', {}, 'bad');
     q.enqueue('ritual.complete', {}, 'good');
     const r = await q.flush(async (m) => (m.id === 'bad' ? { status: 'rejected', code: 'timer_invalid' } : ok));
-    expect(r.dropped).toEqual([{ id: 'bad', code: 'timer_invalid' }]);
+    expect(r.dropped).toEqual([{ id: 'bad', code: 'timer_invalid', kind: 'ritual.complete_step' }]);
     expect(r.sent).toBe(1);
-    expect(q.droppedLog()).toEqual([{ id: 'bad', code: 'timer_invalid' }]);
+    expect(q.droppedLog()).toEqual([{ id: 'bad', code: 'timer_invalid', kind: 'ritual.complete_step' }]);
   });
 
   it('rewrites later mutations when the server replaces a device generated session id', async () => {

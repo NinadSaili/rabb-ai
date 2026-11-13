@@ -168,6 +168,14 @@ export class Db {
     return await this.rpc<Json>('rpc_complete_session', [userId, sessionId, key, hash]);
   }
 
+  /** Timer step status of a session: true verified, false offline attested, null when there is no timer step. */
+  async timerVerified(userId: string, sessionId: string): Promise<boolean | null> {
+    return await this.asUser(userId, async (tx) => {
+      const rows = await tx`select timer_verified from public.ritual_steps where session_id = ${sessionId} and step_type = 'timer'`;
+      return rows.length ? ((rows[0] as { timer_verified: boolean | null }).timer_verified ?? false) : null;
+    });
+  }
+
   async completedDates(userId: string): Promise<string[]> {
     return await this.asUser(userId, async (tx) => {
       const rows = await tx`select distinct local_date::text as d from public.ritual_sessions where status = 'completed' order by d desc limit 800`;

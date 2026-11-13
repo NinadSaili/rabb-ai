@@ -1,7 +1,7 @@
 import { initialState, transition, type RitualEvent, type RitualState } from '@rabb/ritual-engine';
 import type { Analytics } from '../../services/analytics/analytics';
 import type { AppBlockingService, NativeFailure } from '../../services/blocking/types';
-import type { MutationQueue } from '../../services/queue/mutationQueue';
+import type { FlushReport, MutationQueue } from '../../services/queue/mutationQueue';
 
 export type UnlockStatus =
   | { kind: 'none' }
@@ -10,6 +10,8 @@ export type UnlockStatus =
   /** The OS layer reports no restriction, but ritual mutations have not reached the server yet. */
   | { kind: 'unlocked_local_sync_pending'; pending: number }
   | { kind: 'unlock_failed'; reason: NativeFailure | 'still_restricted' }
+  /** The OS layer is unlocked, but the server permanently rejected part of this ritual, so it is not recorded and may not count for the streak. */
+  | { kind: 'unlocked_local_not_recorded'; code: string }
   /** Tier 0 or native module missing: nothing was restricted, so there is nothing to verify. */
   | { kind: 'not_enforced' };
 
@@ -35,6 +37,8 @@ export class RitualController {
   unlock: UnlockStatus = { kind: 'none' };
   /** Rejection from the last event, for the UI to explain. */
   lastRejection: string | null = null;
+  /** Set when the server permanently rejected a mutation of this ritual. */
+  syncRejection: string | null = null;
   private timerStartedAt: number | null = null;
   private listeners = new Set<Listener>();
 
@@ -164,6 +168,21 @@ export class RitualController {
     return this.unlock;
   }
 
+  /**
+   * Call with the report of every queue flush. A permanent rejection of a ritual mutation (for example a timer the server judged
+   * too short) means the ritual was not recorded. The unlock already happened locally, so the UI must say so instead of
+   * pretending everything synced.
+   */
+  noteFlush(report: FlushReport): void {
+    if (report.dropped.length === 0 || this.state.sessionId === null) return;
+    const code = report.dropped[0]?.code ?? 'rejected';
+    if (this.unlock.kind === 'unlocked_verified' || this.unlock.kind === 'unlocked_local_sync_pending') {
+      this.unlock = { kind: 'unlocked_local_not_recorded', code };
+    }
+    this.syncRejection = code;
+    this.emit();
+  }
+
   /** Recomputes the sync pending label after a flush. A network failure never turns into a "synced" claim. */
   refreshSyncLabel(): void {
     if (this.unlock.kind === 'unlocked_local_sync_pending' && this.deps.queue.size() === 0) this.unlock = { kind: 'unlocked_verified' };
@@ -176,6 +195,7 @@ export class RitualController {
     this.unlock = { kind: 'none' };
     this.timerStartedAt = null;
     this.lastRejection = null;
+    this.syncRejection = null;
     this.emit();
   }
 }

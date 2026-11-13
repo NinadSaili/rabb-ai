@@ -126,6 +126,17 @@ class RabbBlockingModule : Module() {
             scope.launch { store.setSuspendedUntil(System.currentTimeMillis()); promise.resolve(status()) }
         }
 
+        // User controlled off switch: stop the service and watchdog, forget windows. Always allowed.
+        AsyncFunction("disableBlocking") { promise: Promise ->
+            scope.launch {
+                store.setWindows(emptyList())
+                store.setSuspendedUntil(System.currentTimeMillis())
+                androidx.work.WorkManager.getInstance(ctx).cancelUniqueWork("rabb_watchdog")
+                ForegroundDetectionService.stop(ctx)
+                promise.resolve(status())
+            }
+        }
+
         AsyncFunction("suspendUntil") { untilMs: Double, promise: Promise ->
             scope.launch { store.setSuspendedUntil(untilMs.toLong()); promise.resolve(status()) }
         }

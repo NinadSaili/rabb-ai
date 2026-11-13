@@ -9,7 +9,8 @@ import { Screen } from './Screen';
 /** Enforcement status: says exactly what is and is not enforced on this device right now, read from the native layer. */
 export function CapabilityScreen() {
   const { t } = useTranslation();
-  const { blocking } = useServices();
+  const { blocking, settings } = useServices();
+  const enabled = settings((s) => s.blockingEnabled);
   const [caps, setCaps] = useState<Capabilities | null>(null);
   const [status, setStatus] = useState<NativeStatus | null>(null);
   const refresh = useCallback(async () => {
@@ -33,6 +34,15 @@ export function CapabilityScreen() {
           {status.lastHeartbeatMs ? <AppText muted size={13}>Last heartbeat {new Date(status.lastHeartbeatMs).toLocaleTimeString()}</AppText> : null}
         </Card>
       ) : null}
+      {!enabled ? <AppText accessibilityLiveRegion="polite">{t('capability.blockingOff')}</AppText> : null}
+      <Button
+        label={enabled ? t('capability.turnOff') : t('capability.turnOn')}
+        variant={enabled ? 'danger' : 'secondary'}
+        onPress={() => {
+          settings.getState().update({ blockingEnabled: !enabled });
+          if (enabled) void blocking.disableBlocking().then(refresh);
+        }}
+      />
       <AppText muted>{t('capability.notGuaranteed')}</AppText>
       {Platform.OS === 'android' ? <AppText muted>{t('permissions.battery')}</AppText> : null}
       <Button label={t('permissions.openSettings')} variant="secondary" onPress={() => void Linking.openSettings()} />

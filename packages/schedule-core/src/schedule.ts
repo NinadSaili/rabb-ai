@@ -165,6 +165,14 @@ export function nextRestrictionTime(input: RestrictionInput, lookaheadDays = 14)
   return best;
 }
 
+/**
+ * End instant for an emergency bypass. It always returns a value, so the bypass works even when no schedule is loaded
+ * (cold start from the block screen, offline, schedules not synced): the end of the latest active window, else the next ritual day start.
+ */
+export function bypassUntil(input: RestrictionInput): number {
+  return bypassEndFor(input) ?? nextRitualDayStart(input.nowMs, input.timeZone);
+}
+
 /** End instant to store for an emergency bypass: the end of the latest currently active window. */
 export function bypassEndFor(input: RestrictionInput): number | null {
   const { nowMs, timeZone, schedules } = input;

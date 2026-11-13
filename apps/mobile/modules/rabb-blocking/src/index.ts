@@ -18,6 +18,7 @@ const service: AppBlockingService & { setFeatureFlags(flags: { tier1: boolean; a
   scheduleRestrictions: (windows) => native.scheduleRestrictions(windows),
   getRestrictionStatus: () => native.getRestrictionStatus(),
   suspendUntil: (untilMs) => native.suspendUntil(untilMs),
+  disableBlocking: () => native.disableBlocking(),
   setFeatureFlags: (flags) => native.setFeatureFlags(flags),
 };
 

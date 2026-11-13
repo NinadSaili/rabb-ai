@@ -11,6 +11,7 @@ export function unlockMessageKey(u: UnlockStatus): { key: string; kind: 'ok' | '
   switch (u.kind) {
     case 'unlocked_verified': return { key: 'completion.verified', kind: 'ok' };
     case 'unlocked_local_sync_pending': return { key: 'completion.pending', kind: 'warn' };
+    case 'unlocked_local_not_recorded': return { key: 'completion.notRecorded', kind: 'warn' };
     case 'unlock_failed': return { key: 'completion.failed', kind: 'bad' };
     case 'not_enforced': return { key: 'completion.notEnforced', kind: 'neutral' };
     default: return null;
@@ -41,7 +42,7 @@ export function CompletionScreen({ navigation }: NativeStackScreenProps<RootStac
       <Heading>{t('completion.title')}</Heading>
       {msg ? (
         <>
-          <StatusBadge kind={msg.kind} label={t(msg.key, { reason: ritual.unlock.kind === 'unlock_failed' ? t(`restriction.reasons.${ritual.unlock.reason}`) : '' })} />
+          <StatusBadge kind={msg.kind} label={t(msg.key, { reason: ritual.unlock.kind === 'unlock_failed' ? t(`restriction.reasons.${ritual.unlock.reason}`) : ritual.unlock.kind === 'unlocked_local_not_recorded' ? ritual.unlock.code : '' })} />
         </>
       ) : <AppText>{t('completion.unlockButton')}</AppText>}
       {!unlocked ? <Button label={ritual.state.status === 'UNLOCK_FAILED' ? t('completion.retry') : t('completion.unlockButton')} loading={busy} onPress={() => void unlock()} /> : <Button label={t('common.done')} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Main' }] })} />}

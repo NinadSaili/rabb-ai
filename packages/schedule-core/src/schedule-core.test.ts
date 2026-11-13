@@ -13,6 +13,7 @@ import {
   ritualDayStart,
   validateSchedule,
   suspensionAfterCompletion,
+  bypassUntil,
   weekView,
   windowsBetween,
   wallToInstant,
@@ -324,5 +325,17 @@ describe('suspension after completion', () => {
   it('unlock until midnight shortens the suspension', () => {
     const night: RitualSchedule = { ...morning, id: 'night', startMinute: 20 * 60, endMinute: 6 * 60, unlockUntil: 'midnight' };
     expect(suspensionAfterCompletion({ nowMs: Z('2026-06-11T00:30:00Z'), timeZone: NY, schedule: night })).toBe(Z('2026-06-11T04:00:00Z'));
+  });
+});
+
+describe('bypassUntil', () => {
+  it('uses the active window end when there is one', () => {
+    expect(bypassUntil({ nowMs: Z('2026-06-10T10:00:00Z'), timeZone: NY, schedules: [morning], completions: [] })).toBe(Z('2026-06-10T16:00:00Z'));
+  });
+  it('still returns an end when no schedules are loaded: the next ritual day start', () => {
+    expect(bypassUntil({ nowMs: Z('2026-06-10T10:00:00Z'), timeZone: NY, schedules: [], completions: [] })).toBe(Z('2026-06-11T07:00:00Z'));
+  });
+  it('returns the next ritual day start outside any window', () => {
+    expect(bypassUntil({ nowMs: Z('2026-06-10T18:00:00Z'), timeZone: NY, schedules: [morning], completions: [] })).toBe(Z('2026-06-11T07:00:00Z'));
   });
 });

@@ -46,6 +46,7 @@ public class RabbBlockingModule: Module {
 
         AsyncFunction("applyRestrictions") { () -> [String: Any?] in BlockingController.shared.apply() }
         AsyncFunction("removeRestrictions") { () -> [String: Any?] in BlockingController.shared.remove() }
+        AsyncFunction("disableBlocking") { () -> [String: Any?] in BlockingController.shared.disable() }
         AsyncFunction("suspendUntil") { (untilMs: Double) -> [String: Any?] in BlockingController.shared.suspend(untilMs: untilMs) }
         AsyncFunction("setFeatureFlags") { (_: [String: Bool]) in }
 

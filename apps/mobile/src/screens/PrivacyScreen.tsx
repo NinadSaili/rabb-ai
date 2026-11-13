@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable } from 'react-native';
+import { bypassUntil } from '@rabb/schedule-core';
 import { AppText, Card, Heading } from '../components';
 import { BYPASS_HOLD_MS } from '../features/ritual/emergencyBypass';
 import { useServices } from '../services';
@@ -14,6 +15,7 @@ export function PrivacyScreen() {
   const { palette } = useTheme();
   const [progress, setProgress] = useState(0);
   const [count, setCount] = useState(bypass.countToday());
+  const [failed, setFailed] = useState(false);
   const started = useRef<number | null>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -34,10 +36,10 @@ export function PrivacyScreen() {
         text: t('privacy.confirm'),
         style: 'destructive',
         onPress: async () => {
-          const { bypassEndFor } = await import('@rabb/schedule-core');
-          const until = bypassEndFor({ nowMs: Date.now(), timeZone: timeZone(), schedules: schedules.current, completions: [] });
-          await bypass.perform({ heldMs, confirmed: true }, until);
+          const until = bypassUntil({ nowMs: Date.now(), timeZone: timeZone(), schedules: schedules.current, completions: [] });
+          const r = await bypass.perform({ heldMs, confirmed: true }, until);
           setCount(bypass.countToday());
+          setFailed(!r.ok);
         },
       },
     ]);
@@ -65,6 +67,7 @@ export function PrivacyScreen() {
           <AppText weight="semibold">{t('privacy.hold')}{progress > 0 ? ` ${Math.round(progress * 100)}%` : ''}</AppText>
         </Pressable>
         <AppText muted size={13}>{t('privacy.usedToday', { count })}</AppText>
+        {failed ? <AppText accessibilityLiveRegion="assertive">{t('capability.bypassFailed')}</AppText> : null}
       </Card>
     </Screen>
   );

@@ -9,6 +9,8 @@ export interface Settings {
   onboardingDone: boolean;
   morningReminder: boolean;
   missedNudge: boolean;
+  /** User controlled off switch for app blocking. When false the app registers no restriction windows. */
+  blockingEnabled: boolean;
   /** Epoch ms until which the user wants the "premium" paywall hidden is NOT stored. There is no premium flag. */
 }
 
@@ -20,6 +22,7 @@ export const DEFAULT_SETTINGS: Settings = {
   onboardingDone: false,
   morningReminder: true,
   missedNudge: false,
+  blockingEnabled: true,
 };
 
 const KEY = 'rabb.settings.v1';

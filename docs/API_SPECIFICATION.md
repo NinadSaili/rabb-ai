@@ -573,6 +573,12 @@ Response 200:
       "type": "string",
       "format": "date-time"
     },
+    "timer_verified": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "first_completion_won": {
       "type": "boolean"
     },
@@ -593,6 +599,7 @@ Response 200:
     "local_date",
     "status",
     "completed_at",
+    "timer_verified",
     "first_completion_won",
     "current_streak",
     "longest_streak",

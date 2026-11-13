@@ -68,6 +68,13 @@ final class BlockingController {
         return status()
     }
 
+    /// User controlled off switch: stop all monitors, clear windows, remove the shield.
+    func disable() -> [String: Any?] {
+        center.stopMonitoring()
+        RabbShared.windows = []
+        return remove()
+    }
+
     func suspend(untilMs: Double) -> [String: Any?] {
         RabbShared.suspendedUntilMs = untilMs
         return remove()

@@ -57,7 +57,8 @@ export function createServices(): Services {
 
   const send = createRitualSender(api);
   const sync = async () => {
-    await queue.flush(send);
+    const report = await queue.flush(send);
+    ritual.noteFlush(report);
     ritual.refreshSyncLabel();
   };
 
@@ -82,6 +83,11 @@ export function createServices(): Services {
 
   const registerWindows = async (list: RitualSchedule[]) => {
     schedules.current = list;
+    // User controlled off switch: no windows are registered while blocking is turned off.
+    if (!settings.getState().blockingEnabled) {
+      await blocking.disableBlocking();
+      return;
+    }
     const now = Date.now();
     const windows = list.flatMap((s) => windowsBetween(s, timeZone(), now, now + 7 * 86_400_000));
     await blocking.scheduleRestrictions(windows);

@@ -173,4 +173,35 @@ describe('RitualController', () => {
     t.controller.completeScripture();
     expect(t.syncs()).toBe(2);
   });
+
+  it('says so when the server permanently rejects part of the ritual after the local unlock', async () => {
+    const t = makeRitual();
+    t.controller.start(START);
+    t.controller.completeScripture();
+    t.controller.completePrayer();
+    t.controller.startTimer();
+    t.advance(61_000);
+    t.controller.completeTimer();
+    t.controller.finish();
+    await t.controller.requestUnlock();
+    expect(t.controller.unlock.kind).toBe('unlocked_local_sync_pending');
+    // The server judges the timer step invalid and then refuses to complete the ritual.
+    const report = await t.queue.flush(async (m) => (m.kind === 'ritual.complete_step' && m.payload.step_type === 'timer' ? { status: 'rejected', code: 'timer_invalid' } : m.kind === 'ritual.complete' ? { status: 'rejected', code: 'illegal_transition' } : { status: 'ok' }));
+    t.controller.noteFlush(report);
+    t.controller.refreshSyncLabel();
+    expect(t.controller.unlock).toEqual({ kind: 'unlocked_local_not_recorded', code: 'timer_invalid' });
+    expect(t.controller.syncRejection).toBe('timer_invalid');
+  });
+
+  it('never labels a rejected ritual as verified or synced after later flushes', async () => {
+    const t = makeRitual();
+    t.controller.start({ ...START, timerSeconds: null });
+    t.controller.completeScripture();
+    t.controller.completePrayer();
+    t.controller.finish();
+    await t.controller.requestUnlock();
+    t.controller.noteFlush(await t.queue.flush(async (m) => (m.kind === 'ritual.complete' ? { status: 'rejected', code: 'illegal_transition' } : { status: 'ok' })));
+    t.controller.refreshSyncLabel();
+    expect(t.controller.unlock.kind).toBe('unlocked_local_not_recorded');
+  });
 });

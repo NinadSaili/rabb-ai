@@ -29,6 +29,7 @@ export class FakeBlocking implements AppBlockingService {
   applyRestrictions() { this.applied = true; return Promise.resolve(this.status()); }
   removeRestrictions() { return this.act('remove'); }
   suspendUntil() { return this.act('suspend'); }
+  disableBlocking() { return this.act('disable'); }
   scheduleRestrictions() { return Promise.resolve(); }
   getRestrictionStatus() { this.calls.push('status'); return this.throws ? Promise.reject(new Error('native')) : Promise.resolve(this.status()); }
 }

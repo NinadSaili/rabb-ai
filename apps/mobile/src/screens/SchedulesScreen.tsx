@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { nextRestrictionTime } from '@rabb/schedule-core';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import { AppText, Button, Card, ErrorState, Heading, Skeleton } from '../components';
 import { createSchedule, listSchedules, toCoreSchedule } from '../features/schedules/api';
 import { scheduleSchema } from '../features/schedules/form';
@@ -20,14 +20,13 @@ export function SchedulesScreen() {
   const q = useQuery({ queryKey: ['schedules'], queryFn: () => listSchedules(api) });
   const [name, setName] = useState('');
   const [hour, setHour] = useState('20');
-  const [midnight, setMidnight] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const input = { borderWidth: 1, borderColor: palette.border, color: palette.text, borderRadius: 8, padding: 12, minHeight: 48 } as const;
 
   const next = q.data ? nextRestrictionTime({ nowMs: Date.now(), timeZone: timeZone(), schedules: q.data.map(toCoreSchedule), completions: [] }) : null;
 
   const add = async () => {
-    const parsed = scheduleSchema.safeParse({ kind: 'custom', name, startHour: Number(hour), timerSeconds: null, unlockUntilMidnight: midnight });
+    const parsed = scheduleSchema.safeParse({ kind: 'custom', name, startHour: Number(hour), timerSeconds: null, unlockUntilMidnight: false });
     if (!parsed.success) return setError(t('errors.generic'));
     try {
       await createSchedule(api, parsed.data, uuidv4());
@@ -56,9 +55,6 @@ export function SchedulesScreen() {
       <Heading>{t('schedules.add')}</Heading>
       <TextInput accessibilityLabel="Name" placeholder="Name" placeholderTextColor={palette.textMuted} value={name} onChangeText={setName} style={input} />
       <TextInput accessibilityLabel="Start hour, 0 to 23" keyboardType="number-pad" value={hour} onChangeText={setHour} style={input} />
-      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: midnight }} accessibilityLabel={t('schedules.untilMidnight')} onPress={() => setMidnight(!midnight)} style={{ minHeight: 48, justifyContent: 'center' }}>
-        <AppText>{midnight ? '☑ ' : '☐ '}{t('schedules.untilMidnight')}</AppText>
-      </Pressable>
       {error ? <AppText>{error}</AppText> : null}
       <Button label={t('schedules.save')} onPress={() => void add()} />
     </Screen>

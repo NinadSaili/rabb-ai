@@ -71,6 +71,7 @@ Deno.test({ name: 'ritual flow: start, steps, complete, idempotent retries, firs
     const done = await call(app, 'POST', '/v1/ritual/complete', u.jwt, { session_id: sid, idempotency_key: ck });
     assertEquals(done.status, 200);
     assertEquals(done.body.first_completion_won, true);
+    assertEquals(done.body.timer_verified, null);
     assertEquals(done.body.current_streak, 1);
     const done2 = await call(app, 'POST', '/v1/ritual/complete', u.jwt, { session_id: sid, idempotency_key: ck });
     assertEquals(done2.body.replayed, true);
@@ -131,6 +132,10 @@ Deno.test({ name: 'ritual flow: offline queued timer is stored as unverified', .
     const ok = await call(app, 'POST', '/v1/ritual/complete-step', u.jwt, { session_id: sid, step_type: 'timer', idempotency_key: uuid(), monotonic_ms: 60500, offline_queued: true });
     assertEquals(ok.status, 200);
     assertEquals(ok.body.timer_verified, false);
+    // The completion response says the timer was not server verified.
+    const done = await call(app, 'POST', '/v1/ritual/complete', u.jwt, { session_id: sid, idempotency_key: uuid() });
+    assertEquals(done.status, 200);
+    assertEquals(done.body.timer_verified, false);
   } finally { await cleanup(u.id); }
 }});
 
@@ -244,4 +249,27 @@ Deno.test({ name: 'learning: free users get premium_required, premium users get 
     const reused = await call(app, 'POST', '/v1/learning/answer', prem.jwt, { attempt_id: p.body.attempt_id, question_id: q[0]!.id, choice_index: 0, idempotency_key: key });
     assertEquals(reused.status, 409);
   } finally { await cleanup(free.id, prem.id); await sql`delete from public.learning_paths where id = ${path[0]!.id}`; }
+}});
+
+Deno.test({ name: 'release gate: DEV ONLY scripture is not served when allow_dev_content is off', ...opts, fn: async () => {
+  const u = await createUser({ timezone: 'America/New_York' });
+  try {
+    await sql`update public.feature_flags set enabled = false where key = 'allow_dev_content'`;
+    const r = await call(app, 'GET', '/v1/daily/ritual', u.jwt);
+    assertEquals(r.status, 404);
+    assertEquals(r.body.error.code, 'not_found');
+  } finally {
+    await sql`update public.feature_flags set enabled = true where key = 'allow_dev_content'`;
+    await cleanup(u.id);
+  }
+}});
+
+Deno.test({ name: 'schedules: midnight unlock is rejected for a window that crosses midnight', ...opts, fn: async () => {
+  const u = await createUser({ schedule: false });
+  try {
+    const body = { name: 'Night', kind: 'custom', enabled: true, weekdays: [1], start_minute: 1320, end_minute: 360, timer_seconds: null, unlock_until: 'midnight', idempotency_key: uuid() };
+    const r = await call(app, 'POST', '/v1/schedules', u.jwt, body);
+    assertEquals(r.status, 400);
+    assertEquals(r.body.error.code, 'validation_failed');
+  } finally { await cleanup(u.id); }
 }});

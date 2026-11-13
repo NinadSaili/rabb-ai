@@ -24,7 +24,8 @@ export function toRequestBody(f: ScheduleForm, idempotencyKey: string) {
     start_minute: start,
     end_minute: end > start ? end : 1440,
     timer_seconds: f.timerSeconds,
-    unlock_until: f.kind === 'custom' && f.unlockUntilMidnight ? ('midnight' as const) : ('window_end' as const),
+    // Midnight unlock is only valid for windows that stay inside the day. It is not offered in the UI yet (docs/RISK_REGISTER.md R17).
+    unlock_until: f.kind === 'custom' && f.unlockUntilMidnight && end > start ? ('midnight' as const) : ('window_end' as const),
     idempotency_key: idempotencyKey,
   };
 }

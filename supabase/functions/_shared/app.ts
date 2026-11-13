@@ -122,7 +122,8 @@ const handlers: Record<string, Route> = {
       const streak = computeStreaks(dates, today);
       const longest = Math.max(streak.longest, await deps.db.storedLongestStreak(userId));
       await deps.db.upsertStreak(userId, streak.current, longest, dates[0] ?? null);
-      return completeResponse.parse({ ...r, current_streak: streak.current, longest_streak: longest });
+      const timerVerified = await deps.db.timerVerified(userId, r.session_id as string);
+      return completeResponse.parse({ ...r, timer_verified: timerVerified, current_streak: streak.current, longest_streak: longest });
     },
   },
 
@@ -159,6 +160,7 @@ const handlers: Record<string, Route> = {
         id: 'new', enabled: body.enabled, weekdays: body.weekdays, startMinute: body.start_minute, endMinute: body.end_minute, unlockUntil: body.unlock_until,
       });
       if (invalid) throw new ApiException('validation_failed', invalid);
+      if (body.unlock_until === 'midnight' && body.end_minute <= body.start_minute) throw new ApiException('validation_failed', 'unlock_until: midnight unlock needs a window that does not cross midnight');
       if (body.kind === 'morning' && body.unlock_until !== 'window_end') throw new ApiException('validation_failed', 'unlock_until: only custom schedules may unlock until midnight');
       const { idempotency_key, ...fields } = body;
       const { row, replayed } = await deps.db.createSchedule(userId, fields, idempotency_key);

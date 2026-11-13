@@ -84,6 +84,11 @@ export const completeResponse = z.object({
   local_date: isoDate,
   status: sessionStatus,
   completed_at: isoTimestamp,
+  /**
+   * Timer step status: true validated against server time, false offline reconciliation (device attested, not verified),
+   * null when the ritual has no timer.
+   */
+  timer_verified: z.boolean().nullable(),
   /** True when an earlier completion for the same schedule and date won. */
   first_completion_won: z.boolean(),
   current_streak: z.number().int().min(0),
