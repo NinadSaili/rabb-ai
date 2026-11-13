@@ -107,3 +107,10 @@ The JS layer (`apps/mobile/src/services/blocking`) defines the contract, reads c
 Decision notes: restrictions are window based. Completing a ritual or using the emergency bypass writes `suspendedUntil`. Detection runs only while the screen is interactive. Revocation of Usage Access is noticed on the next tick and the status screen drops to Tier 0.
 
 CI runs the JVM logic tests on every push (`android-logic` job). Nothing else in this table has been built or run on a device. See `docs/STATUS.md`.
+
+## Build and emulator status (session 2)
+
+The Kotlin module now compiles and packages inside a full Android release build in CI (GitHub Actions `android-apk`: Gradle 9.4, AGP 9, React Native 0.88, Expo 58, NDK 27). The APK manifest was checked in CI: it declares PACKAGE_USAGE_STATS, SYSTEM_ALERT_WINDOW and FOREGROUND_SERVICE_SPECIAL_USE and does not declare QUERY_ALL_PACKAGES. An Android 14 emulator installed it and cold-launched it in about 1.7 seconds.
+
+That is compile and launch evidence only. The foreground service, usage access detection, overlay block screen, boot and watchdog recovery, battery saver behaviour and OEM behaviour have not been run on any device or emulator with a real app in the foreground. The spike table above is still empty and "Tested devices" is still "none recorded". Do not claim real blocking until it is filled.
+
