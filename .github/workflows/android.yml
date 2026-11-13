@@ -94,15 +94,7 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
-          script: |
-            adb install -r out/app-release.apk
-            adb shell pm grant com.rabbai.app android.permission.POST_NOTIFICATIONS || true
-            adb logcat -c
-            adb shell am start -W -n com.rabbai.app/.MainActivity
-            sleep 8
-            adb exec-out screencap -p > launch.png
-            if adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime.*com.rabbai.app"; then echo "App crashed on launch"; adb logcat -d | tail -80; exit 1; fi
-            maestro test --format junit --output maestro-report.xml apps/mobile/e2e/demo-journey.yaml
+          script: bash apps/mobile/e2e/run-smoke.sh out/app-release.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
