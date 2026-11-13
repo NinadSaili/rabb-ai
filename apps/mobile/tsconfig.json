@@ -7,7 +7,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"] },
-    "types": ["jest", "react-native"]
+    "types": ["jest", "react-native", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "index.js"],
   "exclude": ["**/node_modules", "**/Pods"]

@@ -7,8 +7,6 @@ export function createPostHogSink(apiKey: string, host: string): AnalyticsSink {
     captureAppLifecycleEvents: false,
     enableSessionReplay: false,
     disableGeoip: true,
-    // No autocapture of touches or screens.
-    autocapture: false as never,
   });
   return { capture: (event, properties) => client.capture(event, properties) };
 }

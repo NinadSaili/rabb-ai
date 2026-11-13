@@ -70,7 +70,7 @@ describe('MutationQueue', () => {
     const q = new MutationQueue(new MemoryKeyValueStore());
     q.enqueue('ritual.start', {}, 'a');
     let calls = 0;
-    const slow = async (): Promise<SendResult> => { calls++; await new Promise((r) => setTimeout(r, 10)); return ok; };
+    const slow = async (): Promise<SendResult> => { calls++; await new Promise<void>((r) => setTimeout(() => r(), 10)); return ok; };
     await Promise.all([q.flush(slow), q.flush(slow)]);
     expect(calls).toBe(1);
   });
