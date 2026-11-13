@@ -4,16 +4,17 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
 import { AppText, Button, Card, ErrorState, Heading, Skeleton } from '../../components';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 
 /** Lists translations the server may serve (RLS: any authenticated user can read translation metadata). DEV ONLY rows are labelled. */
 export function useTranslations() {
-  const { supabase } = useServices();
+  const { supabase, demo } = useServices();
   return useQuery({
-    queryKey: ['translations'],
+    queryKey: ['translations', demo],
     queryFn: async () => {
+      if (demo) return [{ code: 'KJV-DEV', name: 'King James Version (DEMO placeholder)', language: 'en', license_name: 'DEV ONLY', attribution_text: 'DEMO placeholder text, not licensed for release.', is_dev_only: true }];
       const { data, error } = await supabase.from('scripture_translations').select('code,name,language,license_name,attribution_text,is_dev_only').order('code');
       if (error) throw error;
       return data as { code: string; name: string; language: string; license_name: string; attribution_text: string; is_dev_only: boolean }[];

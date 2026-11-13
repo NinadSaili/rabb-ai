@@ -12,6 +12,8 @@ export type UnlockStatus =
   | { kind: 'unlock_failed'; reason: NativeFailure | 'still_restricted' }
   /** The OS layer is unlocked, but the server permanently rejected part of this ritual, so it is not recorded and may not count for the streak. */
   | { kind: 'unlocked_local_not_recorded'; code: string }
+  /** DEMO MODE: the restriction was simulated, so there is no OS verification to claim. */
+  | { kind: 'unlocked_simulated' }
   /** Tier 0 or native module missing: nothing was restricted, so there is nothing to verify. */
   | { kind: 'not_enforced' };
 
@@ -154,6 +156,12 @@ export class RitualController {
     }
     if (status.restrictionApplied) return this.failUnlock(status.failure ?? 'still_restricted');
     this.dispatch({ type: 'UNLOCK_CONFIRMED' });
+    if (status.simulated) {
+      this.unlock = { kind: 'unlocked_simulated' };
+      this.deps.analytics.track('restriction_removed', { reason: 'ritual_completed' });
+      this.emit();
+      return this.unlock;
+    }
     const pending = this.deps.queue.size();
     this.unlock = pending > 0 ? { kind: 'unlocked_local_sync_pending', pending } : { kind: 'unlocked_verified' };
     this.deps.analytics.track('restriction_removed', { reason: 'ritual_completed' });

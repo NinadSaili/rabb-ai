@@ -10,7 +10,8 @@ export interface DailyRitualView {
   offline: boolean;
   localDate: string;
   today: DayContent;
-  scheduleId: string;
+  /** null until the user has created a schedule (onboarding taste). */
+  scheduleId: string | null;
   timerSeconds: number | null;
   /** Server session summary. Unknown when read from the cache. */
   session: { id: string; status: string; completed_steps: string[] } | null;
@@ -24,7 +25,7 @@ export async function loadDailyRitual(api: ApiClient, cache: DailyContentCache, 
     setJson(kv, META, { scheduleId: r.schedule_id, timerSeconds: r.timer_seconds });
     return { source: 'network', offline: false, localDate: r.local_date, today: r.days[0] as DayContent, scheduleId: r.schedule_id, timerSeconds: r.timer_seconds, session: r.session };
   } catch (e) {
-    const meta = getJson<{ scheduleId: string; timerSeconds: number | null } | null>(kv, META, null);
+    const meta = getJson<{ scheduleId: string | null; timerSeconds: number | null } | null>(kv, META, null);
     const date = localToday();
     const day = cache.get(date);
     if (!meta || !day) throw e;

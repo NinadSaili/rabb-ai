@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 import { AppText, Button, Card, Heading } from '../components';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import type { RootStackParamList } from '../navigation/types';
 import { Screen } from './Screen';
 

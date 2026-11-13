@@ -4,8 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { Linking, Platform } from 'react-native';
 import { AppText, Button, Card, Heading, PermissionRow, StatusBadge } from '../../components';
 import { analytics } from '../../services/analytics/analytics';
+import { Pressable } from 'react-native';
+import type { DemoBlockingService } from '../../demo/demoBlocking';
 import type { Capabilities, PermissionKind, PermissionState, SelectedApplicationsInfo } from '../../services/blocking/types';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 
@@ -18,7 +20,9 @@ export function permissionCopyKey(kind: PermissionKind): string {
 /** Prominent disclosure and consent come before every sensitive permission request. State is always read from the native layer. */
 export function AppSelectionScreen({ navigation }: NativeStackScreenProps<RootStackParamList, 'AppSelection'>) {
   const { t } = useTranslation();
-  const { blocking } = useServices();
+  const { blocking, demo } = useServices();
+  const demoBlocking = demo ? (blocking as unknown as DemoBlockingService) : null;
+  const [demoSelected, setDemoSelected] = useState<string[]>(demoBlocking?.selectedIds() ?? []);
   const [states, setStates] = useState<Partial<Record<PermissionKind, PermissionState>>>({});
   const [caps, setCaps] = useState<Capabilities | null>(null);
   const [selection, setSelection] = useState<SelectedApplicationsInfo>({ count: 0, categoryCount: 0, webDomainCount: 0 });
@@ -70,7 +74,22 @@ export function AppSelectionScreen({ navigation }: NativeStackScreenProps<RootSt
         {/* iOS tokens are opaque: only counts are shown here. Android may list labels, which never leave the device. */}
         <AppText muted>{selection.count} · {selection.categoryCount} · {selection.webDomainCount}</AppText>
         {selection.names?.map((n) => <AppText key={n}>{n}</AppText>)}
-        <Button label={t('onboarding.appsTitle')} onPress={() => void pick()} variant="secondary" />
+        {demoBlocking ? (
+          <>
+            <AppText muted size={13}>{t('demo.appsHelp')}</AppText>
+            {demoBlocking.demoApps().map((a) => {
+              const on = demoSelected.includes(a.id);
+              return (
+                <Pressable key={a.id} accessibilityRole="checkbox" accessibilityState={{ checked: on }} accessibilityLabel={a.label} style={{ minHeight: 48, justifyContent: 'center' }}
+                  onPress={() => { const next = on ? demoSelected.filter((x) => x !== a.id) : [...demoSelected, a.id]; setDemoSelected(next); demoBlocking.setSelected(next); void refresh(); }}>
+                  <AppText>{on ? '☑ ' : '☐ '}{a.label}</AppText>
+                </Pressable>
+              );
+            })}
+          </>
+        ) : (
+          <Button label={t('onboarding.appsTitle')} onPress={() => void pick()} variant="secondary" />
+        )}
         {message ? <AppText>{message}</AppText> : null}
       </Card>
       {caps ? (

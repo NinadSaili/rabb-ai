@@ -249,8 +249,15 @@ Response 200:
       "maxItems": 8
     },
     "schedule_id": {
-      "type": "string",
-      "format": "uuid"
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "uuid"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "timer_seconds": {
       "anyOf": [

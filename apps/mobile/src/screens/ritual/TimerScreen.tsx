@@ -2,7 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppText, Button, Heading, Timer } from '../../components';
-import { useRitual } from '../../services';
+import { useRitual } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 

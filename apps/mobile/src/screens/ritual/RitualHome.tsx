@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AppText, Button, Card, EmptyState, ErrorState, Heading, Skeleton, StatusBadge, StepIndicator, type StepState } from '../../components';
 import { loadDailyRitual } from '../../features/ritual/loadDaily';
 import { listSchedules, toCoreSchedule } from '../../features/schedules/api';
-import { useRitual, useServices } from '../../services';
+import { useRitual, useServices } from '../../serviceContext';
 import type { NativeStatus } from '../../services/blocking/types';
 import type { MainTabParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
@@ -52,7 +52,7 @@ export function RitualHomeScreen({ navigation }: BottomTabScreenProps<MainTabPar
   });
 
   const begin = () => {
-    if (!daily.data) return;
+    if (!daily.data || !daily.data.scheduleId) return;
     if (!inProgress) ritual.start({ scheduleId: daily.data.scheduleId, timerSeconds: timer, localDate: daily.data.localDate });
     const next = ritual.state.status === 'RITUAL_STARTED' ? 'Scripture' : ritual.state.status === 'SCRIPTURE_COMPLETED' ? 'Prayer' : 'Timer';
     navigation.getParent()?.navigate(next);
@@ -62,14 +62,15 @@ export function RitualHomeScreen({ navigation }: BottomTabScreenProps<MainTabPar
     <Screen>
       <Heading>{t('home.title')}</Heading>
       {/* "Restricted" is shown only when the native layer reports it. Never from an API response or a local flag. */}
-      {native ? <StatusBadge kind={native.restrictionApplied ? 'bad' : 'neutral'} label={native.restrictionApplied ? t('restriction.restricted') : t('restriction.notApplied')} /> : null}
+      {native ? <StatusBadge kind={native.restrictionApplied ? 'bad' : 'neutral'} label={native.restrictionApplied ? (native.simulated ? t('demo.restricted') : t('restriction.restricted')) : t('restriction.notApplied')} /> : null}
+      {services.demo ? <Button label={t('demo.enter')} variant="secondary" onPress={() => navigation.getParent()?.navigate('DemoShield')} /> : null}
       {daily.isLoading ? <Skeleton height={96} label={t('common.loading')} /> : null}
       {daily.isError ? <EmptyState title={t('home.title')} body={t('home.offlineEmpty')} action={<Button label={t('common.retry')} onPress={() => void daily.refetch()} />} /> : null}
       {daily.data ? (
         <>
           <StepIndicator t={t as never} steps={steps} />
           {daily.data.offline ? <AppText muted>{t('errors.network')}</AppText> : null}
-          {done ? <Card><AppText weight="semibold">{t('home.done')}</AppText></Card> : <Button testID="start-ritual" label={inProgress ? t('home.resume') : t('home.start')} onPress={begin} />}
+          {done ? <Card><AppText weight="semibold">{t('home.done')}</AppText></Card> : <Button testID="start-ritual" label={inProgress ? t('home.resume') : t('home.start')} disabled={!daily.data.scheduleId} onPress={begin} />}
           {state.status === 'RITUAL_COMPLETED' ? <Button label={t('completion.unlockButton')} onPress={() => navigation.getParent()?.navigate('Completion')} /> : null}
         </>
       ) : null}

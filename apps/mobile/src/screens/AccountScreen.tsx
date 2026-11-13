@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Linking, Platform, TextInput } from 'react-native';
 import { AppText, Button, Heading } from '../components';
 import { linkEmailPassword } from '../services/auth';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import type { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeProvider';
 import { Screen } from './Screen';

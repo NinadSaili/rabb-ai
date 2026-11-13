@@ -7,7 +7,7 @@ import { AppText, Button, Card, EmptyState, ErrorState, Heading, Skeleton } from
 import { ApiError } from '../../services/api/client';
 import { fetchSubscriptionStatus, hasPremium } from '../../services/api/entitlement';
 import { analytics } from '../../services/analytics/analytics';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import { uuidv4 } from '../../utils/id';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';

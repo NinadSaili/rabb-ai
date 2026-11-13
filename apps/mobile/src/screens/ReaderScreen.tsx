@@ -3,7 +3,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppText, Card, ErrorState, Heading, ScriptureText, Skeleton } from '../components';
 import { loadDailyRitual } from '../features/ritual/loadDaily';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import { Screen } from './Screen';
 
 /** Basic Bible reader for cached and prefetched passages. Attribution is rendered under every passage. */

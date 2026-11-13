@@ -7,7 +7,7 @@ import { AppText, Button, Card, ErrorState, Heading, Skeleton } from '../compone
 import { createSchedule, listSchedules, toCoreSchedule } from '../features/schedules/api';
 import { scheduleSchema } from '../features/schedules/form';
 import { analytics } from '../services/analytics/analytics';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { uuidv4 } from '../utils/id';
 import { Screen } from './Screen';
@@ -34,6 +34,7 @@ export function SchedulesScreen() {
       setName('');
       setError(null);
       await qc.invalidateQueries({ queryKey: ['schedules'] });
+      await qc.invalidateQueries({ queryKey: ['daily'] });
       await registerWindows((await listSchedules(api)).map(toCoreSchedule));
     } catch {
       setError(t('errors.generic'));

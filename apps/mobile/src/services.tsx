@@ -1,124 +1,46 @@
-import { ritualDayOf, suspensionAfterCompletion, windowsBetween, type RitualSchedule } from '@rabb/schedule-core';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import { createClient } from '@supabase/supabase-js';
 import { AppState } from 'react-native';
 import 'react-native-url-polyfill/auto';
 import 'react-native-get-random-values';
 import { config, functionsBaseUrl } from './config';
-import { RitualController } from './features/ritual/ritualController';
-import { EmergencyBypass } from './features/ritual/emergencyBypass';
-import { Analytics, analytics } from './services/analytics/analytics';
-import { createApiClient, type ApiClient } from './services/api/client';
-import { createRitualSender } from './services/api/ritualSync';
-import { createBlockingService, type AppBlockingService } from './services/blocking';
-import { DailyContentCache } from './services/content/dailyContent';
-import { MutationQueue } from './services/queue/mutationQueue';
+import { analytics } from './services/analytics/analytics';
+import { createApiClient } from './services/api/client';
+import { createBlockingService } from './services/blocking';
 import { createMmkvStore } from './services/storage/mmkv';
 import { secureStorageAdapter } from './services/storage/secure';
-import type { KeyValueStore } from './services/storage/kv';
-import { createSettingsStore } from './stores/settings';
-import { uuidv4 } from './utils/id';
+import { wireServices } from './serviceWiring';
+import type { Services } from './serviceContext';
 
-export interface Services {
-  supabase: SupabaseClient;
-  api: ApiClient;
-  kv: KeyValueStore;
-  queue: MutationQueue;
-  cache: DailyContentCache;
-  blocking: AppBlockingService;
-  analytics: Analytics;
-  ritual: RitualController;
-  bypass: EmergencyBypass;
-  settings: ReturnType<typeof createSettingsStore>;
-  /** Latest schedules loaded from the server, used for local window maths. */
-  schedules: { current: RitualSchedule[] };
-  timeZone: () => string;
-  localToday: () => string;
-  sync: () => Promise<void>;
-  registerWindows: (schedules: RitualSchedule[]) => Promise<void>;
-}
+export { ServicesProvider, useRitual, useServices, type Services } from './serviceContext';
+
+/** DEMO_MODE is inlined from the build environment. Demo code is required only behind this constant. */
+export const DEMO_MODE = process.env.DEMO_MODE === '1';
 
 export function createServices(): Services {
   const kv = createMmkvStore();
-  const supabase = createClient(config.supabaseUrl || 'http://localhost', config.supabaseAnonKey || 'anon', {
-    auth: { storage: secureStorageAdapter, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
-  });
-  const api = createApiClient({
-    baseUrl: functionsBaseUrl(),
-    getToken: async () => (await supabase.auth.getSession()).data.session?.access_token ?? null,
-  });
-  const queue = new MutationQueue(kv);
-  const cache = new DailyContentCache(kv);
-  const blocking = createBlockingService();
   const timeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  const localToday = () => ritualDayOf(Date.now(), timeZone());
-  const schedules = { current: [] as RitualSchedule[] };
-  const settings = createSettingsStore(kv);
+  let services: Services;
 
-  const send = createRitualSender(api);
-  const sync = async () => {
-    const report = await queue.flush(send);
-    ritual.noteFlush(report);
-    ritual.refreshSyncLabel();
-  };
-
-  const ritual: RitualController = new RitualController({
-    queue,
-    blocking,
-    analytics,
-    newId: uuidv4,
-    monotonicNow: () => performance.now(),
-    currentLocalDate: localToday,
-    suspendUntilMs: () => {
-      const s = ritual.state;
-      const schedule = schedules.current.find((x) => x.id === s.scheduleId);
-      return schedule ? suspensionAfterCompletion({ nowMs: Date.now(), timeZone: timeZone(), schedule }) : null;
-    },
-    triggerSync: () => {
-      void sync().catch(() => undefined);
-    },
-  });
-
-  const bypass = new EmergencyBypass(kv, blocking, analytics, localToday);
-
-  const registerWindows = async (list: RitualSchedule[]) => {
-    schedules.current = list;
-    // User controlled off switch: no windows are registered while blocking is turned off.
-    if (!settings.getState().blockingEnabled) {
-      await blocking.disableBlocking();
-      return;
-    }
-    const now = Date.now();
-    const windows = list.flatMap((s) => windowsBetween(s, timeZone(), now, now + 7 * 86_400_000));
-    await blocking.scheduleRestrictions(windows);
-  };
+  if (DEMO_MODE) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { createDemoParts } = require('./demo/demoParts') as typeof import('./demo/demoParts');
+    services = wireServices({ ...createDemoParts(kv, timeZone), analytics, monotonicNow: () => performance.now() });
+  } else {
+    const supabase = createClient(config.supabaseUrl || 'http://localhost', config.supabaseAnonKey || 'anon', {
+      auth: { storage: secureStorageAdapter, autoRefreshToken: true, persistSession: true, detectSessionInUrl: false },
+    });
+    const api = createApiClient({
+      baseUrl: functionsBaseUrl(),
+      getToken: async () => (await supabase.auth.getSession()).data.session?.access_token ?? null,
+    });
+    services = wireServices({ demo: false, kv, supabase, api, blocking: createBlockingService(), analytics, timeZone, monotonicNow: () => performance.now() });
+  }
 
   AppState.addEventListener('change', (state) => {
     if (state === 'active') {
-      ritual.checkRollover();
-      void sync().catch(() => undefined);
+      services.ritual.checkRollover();
+      void services.sync().catch(() => undefined);
     }
   });
-
-  return { supabase, api, kv, queue, cache, blocking, analytics, ritual, bypass, settings, schedules, timeZone, localToday, sync, registerWindows };
-}
-
-const ServicesContext = createContext<Services | null>(null);
-
-export function ServicesProvider({ services, children }: { services: Services; children: React.ReactNode }) {
-  return <ServicesContext.Provider value={services}>{children}</ServicesContext.Provider>;
-}
-
-export function useServices(): Services {
-  const s = useContext(ServicesContext);
-  if (!s) throw new Error('ServicesProvider missing');
-  return s;
-}
-
-/** Re-renders when the ritual controller emits. */
-export function useRitual(): RitualController {
-  const { ritual } = useServices();
-  const [, force] = useReducer((x: number) => x + 1, 0);
-  useEffect(() => ritual.subscribe(() => force()), [ritual]);
-  return ritual;
+  return services;
 }

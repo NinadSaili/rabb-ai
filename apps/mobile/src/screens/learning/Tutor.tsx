@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { TextInput } from 'react-native';
 import { AppText, Button, Card, Heading, ScriptureText } from '../../components';
 import { ApiError } from '../../services/api/client';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import { useTheme } from '../../theme/ThemeProvider';
 import { Screen } from '../Screen';
 

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppText, Button, Heading, StatusBadge } from '../../components';
 import type { UnlockStatus } from '../../features/ritual/ritualController';
-import { useRitual, useServices } from '../../services';
+import { useRitual, useServices } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 
@@ -11,6 +11,7 @@ export function unlockMessageKey(u: UnlockStatus): { key: string; kind: 'ok' | '
   switch (u.kind) {
     case 'unlocked_verified': return { key: 'completion.verified', kind: 'ok' };
     case 'unlocked_local_sync_pending': return { key: 'completion.pending', kind: 'warn' };
+    case 'unlocked_simulated': return { key: 'completion.simulated', kind: 'warn' };
     case 'unlocked_local_not_recorded': return { key: 'completion.notRecorded', kind: 'warn' };
     case 'unlock_failed': return { key: 'completion.failed', kind: 'bad' };
     case 'not_enforced': return { key: 'completion.notEnforced', kind: 'neutral' };

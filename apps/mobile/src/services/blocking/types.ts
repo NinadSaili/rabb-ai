@@ -27,6 +27,8 @@ export interface Capabilities {
   unmet: { requirement: PermissionKind | 'service' | 'entitlement' | 'flag'; message: string }[];
   /** Always false for guarantees. Enforcement is best effort, especially on Android. */
   guaranteed: false;
+  /** True only in DEMO MODE: restriction state is simulated and nothing is enforced on this device. */
+  demo?: boolean;
 }
 
 export interface SelectionSummary {
@@ -44,6 +46,8 @@ export interface NativeStatus {
   /** True only when the OS layer reports the restriction is applied right now. The only source for "locked". */
   restrictionApplied: boolean;
   tier: CapabilityTier;
+  /** True only in DEMO MODE. The restriction is a simulation, never a real OS restriction. */
+  simulated?: boolean;
   /** Epoch ms of the last heartbeat from the monitor extension or service, when available. */
   lastHeartbeatMs: number | null;
   failure: NativeFailure | null;

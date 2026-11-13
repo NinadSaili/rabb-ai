@@ -1,10 +1,11 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, TextInput } from 'react-native';
 import { AppText, Button, Heading } from '../../components';
 import { analytics } from '../../services/analytics/analytics';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import { uuidv4 } from '../../utils/id';
 import { scheduleSchema } from '../../features/schedules/form';
 import { createSchedule } from '../../features/schedules/api';
@@ -16,6 +17,7 @@ export function ScheduleSetupScreen({ navigation }: NativeStackScreenProps<RootS
   const { t } = useTranslation();
   const { api, settings } = useServices();
   const { palette } = useTheme();
+  const queryClient = useQueryClient();
   const [hour, setHour] = useState('6');
   const [timer, setTimer] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,8 @@ export function ScheduleSetupScreen({ navigation }: NativeStackScreenProps<RootS
     setBusy(true);
     try {
       await createSchedule(api, parsed.data, uuidv4());
+      // The onboarding taste cached today's content without a schedule. Home needs the schedule id and timer.
+      await queryClient.invalidateQueries({ queryKey: ['daily'] });
       analytics.track('schedule_created', { kind: 'morning', weekday_count: 7 });
       settings.getState().update({ onboardingDone: true });
       analytics.track('onboarding_completed', { step_count: 5, timer_enabled: parsed.data.timerSeconds !== null });

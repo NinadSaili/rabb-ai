@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Linking, Platform } from 'react-native';
 import { AppText, Button, Card, Heading, StatusBadge } from '../components';
 import type { Capabilities, NativeStatus } from '../services/blocking/types';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import { Screen } from './Screen';
 
 /** Enforcement status: says exactly what is and is not enforced on this device right now, read from the native layer. */

@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountScreen } from '../screens/AccountScreen';
+import { DemoShieldScreen } from '../screens/DemoShieldScreen';
 import { CapabilityScreen } from '../screens/CapabilityScreen';
 import { HabitsScreen } from '../screens/HabitsScreen';
 import { LearningHomeScreen, LessonScreen, PathDetailsScreen, QuizScreen } from '../screens/learning/Learning';
@@ -63,6 +64,7 @@ export function RootNavigator() {
       <Stack.Screen name="Tutor" component={TutorScreen} options={{ headerShown: true, title: '' }} />
       <Stack.Screen name="Paywall" component={PaywallScreen} options={{ headerShown: true, title: '' }} />
       <Stack.Screen name="Capability" component={CapabilityScreen} options={{ headerShown: true, title: '' }} />
+      <Stack.Screen name="DemoShield" component={DemoShieldScreen} options={{ headerShown: true, title: '' }} />
       <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ headerShown: true, title: '' }} />
     </Stack.Navigator>
   );

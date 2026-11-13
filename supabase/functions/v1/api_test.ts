@@ -273,3 +273,17 @@ Deno.test({ name: 'schedules: midnight unlock is rejected for a window that cros
     assertEquals(r.body.error.code, 'validation_failed');
   } finally { await cleanup(u.id); }
 }});
+
+Deno.test({ name: 'daily ritual: a user without a schedule still gets today\'s content (onboarding taste)', ...opts, fn: async () => {
+  const u = await createUser({ schedule: false });
+  try {
+    const r = await call(app, 'GET', '/v1/daily/ritual?prefetch_days=0', u.jwt);
+    assertEquals(r.status, 200);
+    assertEquals(r.body.schedule_id, null);
+    assertEquals(r.body.timer_seconds, null);
+    assertEquals(r.body.session, null);
+    assert(r.body.days[0].verse.text.length > 5);
+    const unknown = await call(app, 'GET', `/v1/daily/ritual?schedule_id=${uuid()}`, u.jwt);
+    assertEquals(unknown.status, 404);
+  } finally { await cleanup(u.id); }
+}});

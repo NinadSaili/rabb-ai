@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { AppText, Heading } from '../components';
 import { ensureSession } from '../services/auth';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import type { RootStackParamList } from '../navigation/types';
 import { useTheme } from '../theme/ThemeProvider';
 

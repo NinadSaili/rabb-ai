@@ -7,7 +7,7 @@ import Purchases, { type PurchasesPackage } from 'react-native-purchases';
 import { AppText, Button, Card, ErrorState, Heading, Skeleton } from '../../components';
 import { config } from '../../config';
 import { analytics } from '../../services/analytics/analytics';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 

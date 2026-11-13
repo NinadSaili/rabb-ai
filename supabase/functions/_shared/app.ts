@@ -62,7 +62,7 @@ const handlers: Record<string, Route> = {
       const q = parseWith(dailyRitualQuery, Object.fromEntries(url.searchParams));
       const profile = await deps.db.getProfile(userId);
       const schedule = await deps.db.getSchedule(userId, q.schedule_id);
-      if (!schedule) throw new ApiException('not_found', 'schedule not found');
+      if (q.schedule_id && !schedule) throw new ApiException('not_found', 'schedule not found');
       const translation = q.translation ?? profile.translation_code;
       const days: DayContent[] = [];
       for (let i = 0; i <= q.prefetch_days; i++) {
@@ -76,13 +76,13 @@ const handlers: Record<string, Route> = {
         days.push({ local_date: date, verse: verseToApi(verse, date), prayer: prayerToApi(prayer) });
       }
       const today = days[0] as DayContent;
-      const session = await deps.db.sessionFor(userId, schedule.id, today.local_date);
+      const session = schedule ? await deps.db.sessionFor(userId, schedule.id, today.local_date) : null;
       return dailyRitualResponse.parse({
         local_date: today.local_date,
         timezone: profile.timezone,
         days,
-        schedule_id: schedule.id,
-        timer_seconds: schedule.timer_seconds,
+        schedule_id: schedule?.id ?? null,
+        timer_seconds: schedule?.timer_seconds ?? null,
         session: session ? { id: session.id, status: session.status, completed_steps: session.steps } : null,
         server_time: deps.now().toISOString(),
       });

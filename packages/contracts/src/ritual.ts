@@ -32,7 +32,8 @@ export const dailyRitualResponse = z.object({
   timezone: z.string(),
   /** days[0] is today. Remaining entries are the prefetch window. */
   days: z.array(dayContent).min(1).max(8),
-  schedule_id: uuid,
+  /** null until the user has created a schedule. Onboarding shows today's verse before that step. */
+  schedule_id: uuid.nullable(),
   timer_seconds: z.number().int().positive().nullable(),
   session: z
     .object({ id: uuid, status: sessionStatus, completed_steps: z.array(stepType) })

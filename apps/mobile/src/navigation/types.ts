@@ -20,6 +20,7 @@ export type RootStackParamList = {
   Paywall: { source: 'learning' | 'tutor' | 'settings' | 'post_lesson' };
   Capability: undefined;
   Privacy: undefined;
+  DemoShield: undefined;
 };
 
 export type MainTabParamList = {

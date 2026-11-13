@@ -30,8 +30,10 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - name: Install SDK components (the runner image ships the SDK at ANDROID_HOME)
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager --install "platforms;android-37" "build-tools;37.0.0" "ndk;27.1.12297006" "cmake;3.22.1" >/dev/null
+          SDKM="$(find "${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}/cmdline-tools" -name sdkmanager -type f | head -1)"
+          echo "sdkmanager: $SDKM"
+          yes | "$SDKM" --licenses >/dev/null || true
+          "$SDKM" --install "platforms;android-37" "build-tools;37.0.0" "ndk;27.1.12297006" "cmake;3.22.1" | tail -3
       - run: pnpm install --frozen-lockfile
       - name: Client environment (public values only, none needed in demo mode)
         run: |

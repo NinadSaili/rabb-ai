@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppText, Button, ErrorState, Heading, ScriptureText, Skeleton } from '../../components';
 import { loadDailyRitual } from '../../features/ritual/loadDaily';
-import { useServices } from '../../services';
+import { useServices } from '../../serviceContext';
 import type { RootStackParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 

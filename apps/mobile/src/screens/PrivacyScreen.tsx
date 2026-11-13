@@ -4,7 +4,7 @@ import { Alert, Pressable } from 'react-native';
 import { bypassUntil } from '@rabb/schedule-core';
 import { AppText, Card, Heading } from '../components';
 import { BYPASS_HOLD_MS } from '../features/ritual/emergencyBypass';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import { useTheme } from '../theme/ThemeProvider';
 import { Screen } from './Screen';
 

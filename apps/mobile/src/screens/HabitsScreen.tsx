@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { AppText, Card, EmptyState, ErrorState, Heading, Skeleton } from '../components';
-import { useServices } from '../services';
+import { useServices } from '../serviceContext';
 import { Screen } from './Screen';
 
 export function HabitsScreen() {
