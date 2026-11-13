@@ -2,22 +2,36 @@ name: android-smoke
 # Re-runs the emulator smoke test (install, launch, Maestro demo journey) against an APK from an earlier android-apk run,
 # so test changes can be iterated without rebuilding the app.
 on:
+  push:
+    branches: ['claude/**']
+    paths: ['apps/mobile/e2e/**', '.github/workflows/android-smoke.yml']
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'android-apk run id that holds the rabbai-android-apk artifact'
-        required: true
+        description: 'android-apk run id that holds the rabbai-android-apk artifact (default: latest successful run on this branch)'
+        required: false
 jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Find the APK run
+        id: apk
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RID="${{ github.event.inputs.run_id }}"
+          if [ -z "$RID" ]; then
+            RID=$(gh run list --workflow android-apk --branch "${{ github.ref_name }}" --status success --limit 1 --json databaseId -q '.[0].databaseId')
+          fi
+          echo "Using android-apk run $RID"
+          echo "run_id=$RID" >> "$GITHUB_OUTPUT"
       - uses: actions/download-artifact@v4
         with:
           name: rabbai-android-apk
           path: out
-          run-id: ${{ github.event.inputs.run_id }}
+          run-id: ${{ steps.apk.outputs.run_id }}
           github-token: ${{ github.token }}
       - name: Enable KVM
         run: |
