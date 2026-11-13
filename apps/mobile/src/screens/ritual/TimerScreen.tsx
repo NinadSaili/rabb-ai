@@ -13,6 +13,7 @@ export function TimerScreen({ navigation }: NativeStackScreenProps<RootStackPara
   const total = ritual.state.timerSeconds ?? 0;
   const [started, setStarted] = useState(false);
   const [, tick] = useState(0);
+  const [problem, setProblem] = useState<string | null>(null);
   useEffect(() => {
     if (!started) return;
     const id = setInterval(() => tick((x) => x + 1), 250);
@@ -30,8 +31,10 @@ export function TimerScreen({ navigation }: NativeStackScreenProps<RootStackPara
         disabled={!finished}
         onPress={() => {
           if (ritual.completeTimer() && ritual.finish()) navigation.replace('Completion');
+          else setProblem(ritual.lastRejection ?? 'unknown');
         }}
       />
+      {problem ? <AppText accessibilityLiveRegion="assertive">{`${t('timer.tooEarly')} (${problem})`}</AppText> : null}
       {started && !finished ? <AppText muted>{t('timer.tooEarly')}</AppText> : null}
     </Screen>
   );
