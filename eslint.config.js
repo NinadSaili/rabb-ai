@@ -11,4 +11,9 @@ export default tseslint.config(
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },
+  {
+    // Edge Functions log structured JSON through console.log. Tests read loosely typed JSON responses.
+    files: ['supabase/functions/**/*.ts', 'supabase/tests/**/*.ts', 'scripts/**/*.ts'],
+    rules: { 'no-console': 'off', '@typescript-eslint/no-explicit-any': 'off' },
+  },
 );
