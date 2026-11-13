@@ -61,11 +61,11 @@ appId: com.rabbai.app
 - tapOn: "I have read this"
 - tapOn: "Amen"
 - tapOn: "Start timer"
+# The countdown reaches 0:00 only after the 30 second timer has really run. (An "enabled" filter is not used:
+# React Native does not reliably map a disabled Pressable to Android enabled=false.)
 - extendedWaitUntil:
-    visible:
-      text: "Finish"
-      enabled: true
-    timeout: 60000
+    visible: "0:00"
+    timeout: 90000
 - tapOn: "Finish"
 - extendedWaitUntil:
     visible: "Well done"
