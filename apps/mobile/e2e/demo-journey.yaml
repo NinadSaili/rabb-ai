@@ -20,9 +20,23 @@ appId: com.rabbai.app
 - extendedWaitUntil:
     visible: "Today's verse"
     timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "Continue"
+      enabled: true
+    timeout: 30000
 - tapOn: "Continue"
+- scrollUntilVisible:
+    element: "Social feed \\(demo\\)"
+    timeout: 30000
 - tapOn: "Social feed \\(demo\\)"
+- scrollUntilVisible:
+    element: "Short videos \\(demo\\)"
+    timeout: 30000
 - tapOn: "Short videos \\(demo\\)"
+- scrollUntilVisible:
+    element: "Continue"
+    timeout: 30000
 - tapOn: "Continue"
 - extendedWaitUntil:
     visible: "When should your ritual start?"
@@ -31,9 +45,17 @@ appId: com.rabbai.app
     text: "Reading timer.*"
 - inputText: "30"
 - hideKeyboard
+- scrollUntilVisible:
+    element: "Save schedule"
+    timeout: 30000
 - tapOn: "Save schedule"
 - extendedWaitUntil:
     visible: "Restricted \\(simulated\\)"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "Start ritual"
+      enabled: true
     timeout: 30000
 - tapOn: "Start ritual"
 - tapOn: "I have read this"
