@@ -17,6 +17,8 @@ react {
     reactNativeDir = rnDir
     codegenDir = nodeResolve("require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })").getParentFile()
     cliFile = new File(rnDir, "cli.js")
+    // hermes-compiler is hoisted to the repository root, where the plugin does not look by default.
+    hermesCommand = new File(nodeResolve("require.resolve('hermes-compiler/package.json', { paths: [require.resolve('react-native/package.json')] })").getParentFile(), "hermesc/%OS-BIN%/hermesc").absolutePath
     /* Folders */
     //   The root of your project, i.e. where "package.json" lives. Default is '../..'
     // root = file("../../")
