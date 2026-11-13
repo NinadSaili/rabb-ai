@@ -1,6 +1,6 @@
 import type { AppBlockingService, Capabilities, NativeStatus, PermissionKind, PermissionState } from '../services/blocking/types';
 import { getJson, setJson, type KeyValueStore } from '../services/storage/kv';
-import { DEMO_APPS } from './fixtures';
+import { DEMO_APPS } from './apps';
 
 const KEY = 'demo.blocking.v1';
 

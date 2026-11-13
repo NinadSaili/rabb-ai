@@ -15,7 +15,8 @@
     "functions:test": "bash scripts/functions-test.sh",
     "ai:evals": "bash scripts/ai-evals.sh",
     "docs:api": "tsx scripts/generate-api-spec.ts",
-    "ai:ingest": "bash scripts/ai-ingest.sh"
+    "ai:ingest": "bash scripts/ai-ingest.sh",
+    "check:release-bundle": "bash scripts/check-release-bundle.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

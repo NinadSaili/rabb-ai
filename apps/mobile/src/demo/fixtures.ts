@@ -36,11 +36,3 @@ export const DEMO_PRAYERS = [
   { id: '22222222-2222-4222-8222-222222222202', title: 'Steady my day', body: 'Father, steady my steps today. Let what I read settle in me and shape what I say and do. Amen.' },
   { id: '22222222-2222-4222-8222-222222222203', title: 'Rest in you', body: 'God, I bring my tiredness to you. Teach me to rest in your care and to trust you with what I cannot carry. Amen.' },
 ];
-
-/** Generic names on purpose: demo mode never touches real installed apps. */
-export const DEMO_APPS = [
-  { id: 'social', label: 'Social feed (demo)' },
-  { id: 'video', label: 'Short videos (demo)' },
-  { id: 'news', label: 'News scroll (demo)' },
-  { id: 'games', label: 'Games (demo)' },
-];

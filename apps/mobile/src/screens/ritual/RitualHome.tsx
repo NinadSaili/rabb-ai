@@ -1,6 +1,6 @@
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppText, Button, Card, EmptyState, ErrorState, Heading, Skeleton, StatusBadge, StepIndicator, type StepState } from '../../components';
 import { loadDailyRitual } from '../../features/ritual/loadDaily';
@@ -10,34 +10,38 @@ import type { NativeStatus } from '../../services/blocking/types';
 import type { MainTabParamList } from '../../navigation/types';
 import { Screen } from '../Screen';
 
-export function useNativeStatus(): NativeStatus | null {
+/** Always a fresh read from the native layer. Returns the status and a function to re-read it immediately. */
+export function useNativeStatus(): [NativeStatus | null, () => void] {
   const { blocking } = useServices();
   const [s, setS] = useState<NativeStatus | null>(null);
+  const alive = useRef(true);
+  const read = useCallback(() => {
+    void blocking.getRestrictionStatus().then((v) => alive.current && setS(v));
+  }, [blocking]);
   useEffect(() => {
-    let alive = true;
-    const read = () => void blocking.getRestrictionStatus().then((v) => alive && setS(v));
+    alive.current = true;
     read();
     const id = setInterval(read, 5000);
     return () => {
-      alive = false;
+      alive.current = false;
       clearInterval(id);
     };
-  }, [blocking]);
-  return s;
+  }, [read]);
+  return [s, read];
 }
 
 export function RitualHomeScreen({ navigation }: BottomTabScreenProps<MainTabParamList, 'Home'>) {
   const { t } = useTranslation();
   const services = useServices();
   const ritual = useRitual();
-  const native = useNativeStatus();
+  const [native, refreshNative] = useNativeStatus();
   const daily = useQuery({ queryKey: ['daily'], queryFn: () => loadDailyRitual(services.api, services.cache, services.kv, services.localToday) });
 
   useEffect(() => {
     // Register upcoming restriction windows with the OS layer whenever the schedule list is known.
-    void listSchedules(services.api).then((list) => services.registerWindows(list.map(toCoreSchedule))).catch(() => undefined);
+    void listSchedules(services.api).then((list) => services.registerWindows(list.map(toCoreSchedule))).then(refreshNative).catch(() => undefined);
     ritual.checkRollover();
-  }, [services, ritual]);
+  }, [services, ritual, refreshNative]);
 
   const state = ritual.state;
   const done = daily.data?.session?.status === 'completed' || state.status === 'UNLOCKED' || state.status === 'RITUAL_COMPLETED';

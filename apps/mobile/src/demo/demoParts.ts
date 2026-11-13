@@ -3,15 +3,22 @@ import type { WiringParts } from '../serviceWiring';
 import type { KeyValueStore } from '../services/storage/kv';
 import { createDemoApi } from './demoApi';
 import { DemoBlockingService } from './demoBlocking';
+import { DEMO_TRANSLATION } from './fixtures';
 
 /** A minimal stand-in for the Supabase client. There is no backend in demo mode. */
 function fakeSupabase(): SupabaseClient {
   const session = { access_token: 'demo', user: { id: 'demo-user', is_anonymous: false, email: null } };
-  const rows = { data: [], error: null };
-  const chain: Record<string, unknown> = {};
-  for (const m of ['select', 'order', 'eq', 'limit']) chain[m] = () => chain;
-  chain.single = async () => ({ data: null, error: { message: 'demo mode' } });
-  (chain as { then: unknown }).then = (res: (v: unknown) => unknown) => Promise.resolve(rows).then(res);
+  const tables: Record<string, unknown[]> = {
+    scripture_translations: [{ code: DEMO_TRANSLATION.code, name: DEMO_TRANSLATION.name, language: DEMO_TRANSLATION.language, license_name: DEMO_TRANSLATION.license_name, attribution_text: DEMO_TRANSLATION.attribution_text, is_dev_only: true }],
+  };
+  const from = (table: string) => {
+    const rows = { data: tables[table] ?? [], error: null };
+    const chain: Record<string, unknown> = {};
+    for (const m of ['select', 'order', 'eq', 'limit']) chain[m] = () => chain;
+    chain.single = async () => ({ data: null, error: { message: 'demo mode' } });
+    (chain as { then: unknown }).then = (res: (v: unknown) => unknown) => Promise.resolve(rows).then(res);
+    return chain;
+  };
   return {
     auth: {
       getSession: async () => ({ data: { session } }),
@@ -21,7 +28,7 @@ function fakeSupabase(): SupabaseClient {
       signOut: async () => ({ error: null }),
       linkIdentity: async () => ({ data: null, error: { message: 'demo mode' } }),
     },
-    from: () => chain,
+    from,
   } as unknown as SupabaseClient;
 }
 

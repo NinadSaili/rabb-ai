@@ -19,6 +19,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm docs:api && git diff --exit-code docs/API_SPECIFICATION.md
+      - run: pnpm check:release-bundle
       - run: pnpm audit --audit-level high
         continue-on-error: true
 

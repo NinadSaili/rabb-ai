@@ -21,7 +21,9 @@ export function createServices(): Services {
   const timeZone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   let services: Services;
 
-  if (DEMO_MODE) {
+  // The comparison is written inline on purpose: the build inlines the environment value, Metro folds the constant condition,
+  // and the demo modules (placeholder scripture) are dropped from non-demo bundles.
+  if (process.env.DEMO_MODE === '1') {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { createDemoParts } = require('./demo/demoParts') as typeof import('./demo/demoParts');
     services = wireServices({ ...createDemoParts(kv, timeZone), analytics, monotonicNow: () => performance.now() });

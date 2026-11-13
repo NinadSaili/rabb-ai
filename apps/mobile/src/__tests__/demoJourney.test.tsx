@@ -4,9 +4,10 @@
  * It runs in DEMO MODE parts (local API, SIMULATED restrictions). It proves the flow and the honesty of the labels.
  * It does not prove native app blocking.
  */
+import { habitsSummaryResponse } from '@rabb/contracts';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { createDemoParts } from '../demo/demoParts';
@@ -14,11 +15,12 @@ import { initI18n } from '../i18n';
 import { RootNavigator } from '../navigation/RootNavigator';
 import { ServicesProvider, type Services } from '../serviceContext';
 import { wireServices } from '../serviceWiring';
-import { Analytics } from '../services/analytics/analytics';
+import { Analytics, analytics as globalAnalytics } from '../services/analytics/analytics';
 import { MemoryKeyValueStore } from '../services/storage/kv';
 import { ThemeProvider } from '../theme/ThemeProvider';
 
 jest.mock('react-native-purchases', () => ({ __esModule: true, default: { configure: jest.fn(), getOfferings: jest.fn(async () => ({ current: null })), purchasePackage: jest.fn(), restorePurchases: jest.fn() } }));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 jest.mock('react-native-safe-area-context', () => require('react-native-safe-area-context/jest/mock').default);
 
 const NOW = Date.UTC(2026, 10, 21, 14, 0, 0); // 21 November 2026, afternoon in New York
@@ -27,7 +29,9 @@ let mono = 1000;
 function setup() {
   const kv = new MemoryKeyValueStore();
   const events: string[] = [];
-  const analytics = new Analytics({ capture: (e) => events.push(e) }, true);
+  const sink = { capture: (e: string) => { events.push(e); } };
+  const analytics = new Analytics(sink, true);
+  globalAnalytics.setSink(sink); // onboarding screens use the shared instance
   const parts = createDemoParts(kv, () => 'America/New_York');
   const services: Services = wireServices({ ...parts, analytics, monotonicNow: () => mono, nowMs: () => NOW });
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -42,18 +46,22 @@ function setup() {
       </ThemeProvider>
     </SafeAreaProvider>
   );
-  return { services, tree, events, kv };
+  return { services, tree, events, kv, queryClient };
 }
 
 const press = async (name: string | RegExp) => {
   await act(async () => { fireEvent.press(await screen.findByRole('button', { name })); });
 };
 
+let activeClient: QueryClient | null = null;
+
 describe('demo journey', () => {
   beforeAll(() => { initI18n('en'); });
+  afterEach(async () => { await cleanup(); activeClient?.clear(); jest.useRealTimers(); });
 
   it('walks onboarding, schedule, ritual, timer and unlock, labelling everything as simulated', async () => {
-    const { services, tree, events } = setup();
+    const { services, tree, events, queryClient } = setup();
+    activeClient = queryClient;
     await render(tree);
 
     // 1 Onboarding promise and age gate. Demo banner is visible from the first screen.
@@ -88,7 +96,7 @@ describe('demo journey', () => {
     await press('Save schedule');
 
     // 6 Home: restriction is shown as simulated, never as a real restriction
-    expect(await screen.findByText('Daily ritual')).toBeTruthy();
+    expect((await screen.findAllByText('Daily ritual')).length).toBeGreaterThan(0);
     expect(await screen.findByText('Restricted (simulated)')).toBeTruthy();
     expect(screen.queryByText('Restricted by your device')).toBeNull();
     await waitFor(async () => expect((await screen.findByTestId('start-ritual')).props.accessibilityState.disabled).toBe(false));
@@ -127,7 +135,7 @@ describe('demo journey', () => {
 
     // The ritual was recorded by the demo API with the timer flagged as not server verified.
     await waitFor(async () => expect(services.queue.size()).toBe(0));
-    const habits = await services.api.get('/v1/habits/summary', (await import('@rabb/contracts')).habitsSummaryResponse);
+    const habits = await services.api.get('/v1/habits/summary', habitsSummaryResponse);
     expect(habits.current_streak).toBe(1);
     expect(events).toEqual(expect.arrayContaining(['onboarding_started', 'schedule_created', 'onboarding_completed', 'ritual_started', 'scripture_completed', 'prayer_completed', 'ritual_completed', 'restriction_removed']));
   });

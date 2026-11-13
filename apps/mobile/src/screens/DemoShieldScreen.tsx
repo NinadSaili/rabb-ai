@@ -2,7 +2,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppText, Button, Card, Heading, StatusBadge } from '../components';
-import { DEMO_APPS } from '../demo/fixtures';
+import { DEMO_APPS } from '../demo/apps';
 import type { NativeStatus } from '../services/blocking/types';
 import { useServices } from '../serviceContext';
 import type { RootStackParamList } from '../navigation/types';
