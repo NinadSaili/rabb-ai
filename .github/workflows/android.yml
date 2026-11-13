@@ -28,9 +28,9 @@ jobs:
         with: { node-version: 20, cache: pnpm }
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 17 }
-      - uses: android-actions/setup-android@v3
-      - name: Install SDK components
+      - name: Install SDK components (the runner image ships the SDK at ANDROID_HOME)
         run: |
+          yes | sdkmanager --licenses >/dev/null || true
           sdkmanager --install "platforms;android-37" "build-tools;37.0.0" "ndk;27.1.12297006" "cmake;3.22.1" >/dev/null
       - run: pnpm install --frozen-lockfile
       - name: Client environment (public values only, none needed in demo mode)
