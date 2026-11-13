@@ -104,6 +104,7 @@ export const en = {
   },
   account: { title: 'Save your progress', body: 'Create an account so your streak and subscription follow you to a new phone.', email: 'Email', password: 'Password', create: 'Create account', apple: 'Continue with Apple', google: 'Continue with Google', skip: 'Not now' },
   privacy: { title: 'Privacy and emergency bypass', appsNever: 'The apps you choose never leave your device.', bypassTitle: 'Emergency bypass', bypassBody: 'Removes restrictions right now. Hold the button for 5 seconds, then confirm.', hold: 'Hold for 5 seconds', confirm: 'Remove restrictions now', usedToday: 'Used today: {{count}}' },
+  notifications: { morningTitle: 'Before the scroll', morningBody: 'Your morning ritual is ready. It takes a few minutes.', nudgeTitle: 'Still time today', nudgeBody: 'Your ritual is waiting. A short verse and prayer will do.' },
   errors: { generic: 'Something went wrong.', network: 'You appear to be offline.', boundary: 'Something went wrong. Your progress is safe.' },
   a11y: { step: 'Step {{current}} of {{total}}: {{label}}', stepDone: 'completed', stepCurrent: 'current', stepTodo: 'not started', timerValue: '{{minutes}} minutes {{seconds}} seconds remaining' },
 } as const;
