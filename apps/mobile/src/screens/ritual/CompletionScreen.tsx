@@ -45,7 +45,7 @@ export function CompletionScreen({ navigation }: NativeStackScreenProps<RootStac
         <>
           <StatusBadge kind={msg.kind} label={t(msg.key, { reason: ritual.unlock.kind === 'unlock_failed' ? t(`restriction.reasons.${ritual.unlock.reason}`) : ritual.unlock.kind === 'unlocked_local_not_recorded' ? ritual.unlock.code : '' })} />
         </>
-      ) : <AppText>{t('completion.unlockButton')}</AppText>}
+      ) : null}
       {!unlocked ? <Button label={ritual.state.status === 'UNLOCK_FAILED' ? t('completion.retry') : t('completion.unlockButton')} loading={busy} onPress={() => void unlock()} /> : <Button label={t('common.done')} onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Main' }] })} />}
       {ritual.state.status === 'UNLOCK_FAILED' ? <Button label={t('completion.bypass')} variant="secondary" onPress={() => navigation.navigate('Privacy')} /> : null}
     </Screen>

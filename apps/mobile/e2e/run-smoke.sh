@@ -20,14 +20,14 @@ for attempt in 1 2; do
   echo "--- maestro attempt $attempt"
   maestro test --format junit --output maestro-report.xml apps/mobile/e2e/demo-journey.yaml && { code=0; break; }
   code=$?
+  echo "--- screen text after failed attempt $attempt (uiautomator)"
+  adb shell uiautomator dump /sdcard/window.xml >/dev/null 2>&1
+  adb shell cat /sdcard/window.xml | grep -oE '(text|content-desc)="[^"]+"' | sort -u | head -40
+  adb exec-out screencap -p > failed.png
   adb shell am force-stop com.rabbai.app
 done
 if [ $code -ne 0 ]; then
   echo "--- app log after failed flow"
   adb logcat -d -v brief | grep -E "ReactNativeJS|AndroidRuntime|FATAL" | tail -80
-  echo "--- screen text after failed flow (uiautomator)"
-  adb shell uiautomator dump /sdcard/window.xml >/dev/null 2>&1
-  adb shell cat /sdcard/window.xml | grep -oE '(text|content-desc)="[^"]+"' | sort -u | head -40
-  adb exec-out screencap -p > failed.png
 fi
 exit $code
