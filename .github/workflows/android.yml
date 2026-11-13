@@ -41,13 +41,74 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Build APK
         working-directory: apps/mobile/android
-        run: ./gradlew assemble${{ github.event.inputs.variant || 'Release' }} -PreactNativeArchitectures=arm64-v8a --stacktrace
+        run: ./gradlew assemble${{ github.event.inputs.variant || 'Release' }} -PreactNativeArchitectures=arm64-v8a,x86_64 --stacktrace
       - name: Collect APK
         run: |
           mkdir -p out && find apps/mobile/android/app/build/outputs/apk -name "*.apk" -exec cp {} out/ \;
           ls -la out
+      - name: Inspect the APK (permissions and bundle contents)
+        run: |
+          APK=$(ls out/*.apk | head -1)
+          AAPT2="$(find "$ANDROID_HOME/build-tools" -name aapt2 -type f | sort | tail -1)"
+          "$AAPT2" dump permissions "$APK" | tee perms.txt
+          if grep -q QUERY_ALL_PACKAGES perms.txt; then echo "FAIL: QUERY_ALL_PACKAGES must not be requested"; exit 1; fi
+          for p in PACKAGE_USAGE_STATS SYSTEM_ALERT_WINDOW FOREGROUND_SERVICE_SPECIAL_USE; do grep -q "$p" perms.txt || { echo "missing $p"; exit 1; }; done
+          unzip -p "$APK" assets/index.android.bundle > bundle.hbc
+          if [ "${{ (github.event.inputs.demo_mode || 'true') }}" = "true" ]; then
+            grep -qa "Social feed (demo)" bundle.hbc && echo "demo bundle: demo content present (expected)"
+          else
+            if grep -qa "only begotten Son" bundle.hbc; then echo "FAIL: non-demo bundle contains placeholder scripture"; exit 1; fi
+            echo "non-demo bundle: no placeholder scripture"
+          fi
+          "$AAPT2" dump badging "$APK" | grep -E "package:|sdkVersion|targetSdkVersion|native-code" | head
       - uses: actions/upload-artifact@v4
         with:
           name: rabbai-android-apk
           path: out/*.apk
           if-no-files-found: error
+
+  emulator-smoke:
+    needs: apk
+    # Installs the CI-built demo APK on an Android emulator, launches it and runs the demo journey with Maestro.
+    if: ${{ (github.event.inputs.demo_mode || 'true') == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: rabbai-android-apk, path: out }
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          script: |
+            adb install -r out/app-release.apk
+            adb shell pm grant com.rabbai.app android.permission.POST_NOTIFICATIONS || true
+            adb logcat -c
+            adb shell am start -W -n com.rabbai.app/.MainActivity
+            sleep 8
+            adb exec-out screencap -p > launch.png
+            if adb logcat -d | grep -E "FATAL EXCEPTION|AndroidRuntime.*com.rabbai.app"; then echo "App crashed on launch"; adb logcat -d | tail -80; exit 1; fi
+            maestro test --format junit --output maestro-report.xml apps/mobile/e2e/demo-journey.yaml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emulator-smoke-results
+          path: |
+            launch.png
+            maestro-report.xml
+            ~/.maestro/tests/**
+          if-no-files-found: ignore
