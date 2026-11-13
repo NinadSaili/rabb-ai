@@ -1,4 +1,4 @@
-import { ritualDayOf, resolveRestriction, windowsBetween, type RitualSchedule } from '@rabb/schedule-core';
+import { ritualDayOf, suspensionAfterCompletion, windowsBetween, type RitualSchedule } from '@rabb/schedule-core';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { AppState } from 'react-native';
@@ -70,15 +70,8 @@ export function createServices(): Services {
     currentLocalDate: localToday,
     suspendUntilMs: () => {
       const s = ritual.state;
-      if (!s.scheduleId || !s.localDate) return null;
-      const now = Date.now();
-      const status = resolveRestriction({
-        nowMs: now,
-        timeZone: timeZone(),
-        schedules: schedules.current,
-        completions: [{ scheduleId: s.scheduleId, localDate: s.localDate, completedAtMs: now }],
-      });
-      return status.suspendedUntilMs;
+      const schedule = schedules.current.find((x) => x.id === s.scheduleId);
+      return schedule ? suspensionAfterCompletion({ nowMs: Date.now(), timeZone: timeZone(), schedule }) : null;
     },
     triggerSync: () => {
       void sync().catch(() => undefined);

@@ -71,4 +71,6 @@ export interface AppBlockingService {
   getRestrictionStatus(): Promise<NativeStatus>;
   /** Suspends restrictions until the given epoch ms (emergency bypass and post ritual unlock). */
   suspendUntil(untilMs: number): Promise<NativeStatus>;
+  /** Remote feature flags (Supabase feature_flags). Android Tier 1 and Tier 2 default off. */
+  setFeatureFlags?(flags: { tier1: boolean; accessibility: boolean }): Promise<void>;
 }

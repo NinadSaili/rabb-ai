@@ -12,6 +12,7 @@ import {
   ritualDayOf,
   ritualDayStart,
   validateSchedule,
+  suspensionAfterCompletion,
   weekView,
   windowsBetween,
   wallToInstant,
@@ -303,5 +304,25 @@ describe('streaks', () => {
   it('date helpers', () => {
     expect(addDays('2026-02-28', 1)).toBe('2026-03-01');
     expect(mondayOf('2026-03-08')).toBe('2026-03-02');
+  });
+});
+
+describe('suspension after completion', () => {
+  it('during a window: until the window end', () => {
+    expect(suspensionAfterCompletion({ nowMs: Z('2026-06-10T10:30:00Z'), timeZone: NY, schedule: morning })).toBe(Z('2026-06-10T16:00:00Z'));
+  });
+  it('before a window on the same ritual date: covers the upcoming window so it is not re-applied', () => {
+    expect(suspensionAfterCompletion({ nowMs: Z('2026-06-10T07:30:00Z'), timeZone: NY, schedule: morning })).toBe(Z('2026-06-10T16:00:00Z')); // 03:30 EDT completion, window 05:00-12:00
+  });
+  it('after the last window of the ritual date: nothing to suspend', () => {
+    expect(suspensionAfterCompletion({ nowMs: Z('2026-06-10T20:00:00Z'), timeZone: NY, schedule: morning })).toBeNull();
+  });
+  it('a window crossing the 03:00 rollover is cut at the rollover', () => {
+    const night: RitualSchedule = { ...morning, id: 'night', startMinute: 20 * 60, endMinute: 6 * 60 };
+    expect(suspensionAfterCompletion({ nowMs: Z('2026-06-11T00:30:00Z'), timeZone: NY, schedule: night })).toBe(Z('2026-06-11T07:00:00Z')); // 03:00 EDT Jun 11
+  });
+  it('unlock until midnight shortens the suspension', () => {
+    const night: RitualSchedule = { ...morning, id: 'night', startMinute: 20 * 60, endMinute: 6 * 60, unlockUntil: 'midnight' };
+    expect(suspensionAfterCompletion({ nowMs: Z('2026-06-11T00:30:00Z'), timeZone: NY, schedule: night })).toBe(Z('2026-06-11T04:00:00Z'));
   });
 });

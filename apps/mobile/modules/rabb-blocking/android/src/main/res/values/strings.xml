@@ -1,0 +1,12 @@
+<resources>
+  <string name="rabb_block_title">Seek the Word first</string>
+  <string name="rabb_block_body">You chose to pause this app until you read today\'s verse and pray.</string>
+  <string name="rabb_block_open">Open Rabb.ai</string>
+  <string name="rabb_block_bypass">Emergency bypass</string>
+  <string name="rabb_block_close">Go back</string>
+  <string name="rabb_fgs_title">Rabb.ai is watching for the apps you chose</string>
+  <string name="rabb_fgs_text">You can turn this off any time in Rabb.ai settings or Android settings.</string>
+  <string name="rabb_picker_title">Choose apps to restrict</string>
+  <string name="rabb_picker_done">Done</string>
+  <string name="rabb_picker_cancel">Cancel</string>
+</resources>

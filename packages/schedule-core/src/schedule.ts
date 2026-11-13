@@ -176,3 +176,21 @@ export function bypassEndFor(input: RestrictionInput): number | null {
   }
   return end;
 }
+
+/**
+ * Instant until which restrictions stay suspended after a ritual completion, so the OS layer does not re-apply
+ * them for windows of the same ritual date. Covers completion before, during or across a window.
+ * Returns null when no window of the schedule remains in the current ritual date.
+ */
+export function suspensionAfterCompletion(input: { nowMs: number; timeZone: string; schedule: RitualSchedule }): number | null {
+  const { nowMs, timeZone, schedule } = input;
+  const dayEnd = nextRitualDayStart(nowMs, timeZone);
+  let best: number | null = null;
+  for (const w of windowsBetween(schedule, timeZone, nowMs, dayEnd)) {
+    if (w.endMs <= nowMs || w.startMs >= dayEnd) continue;
+    let end = Math.min(w.endMs, dayEnd);
+    if (schedule.unlockUntil === 'midnight') end = Math.min(end, nextLocalMidnight(nowMs, timeZone));
+    if (end > nowMs) best = best === null ? end : Math.max(best, end);
+  }
+  return best;
+}
