@@ -94,6 +94,8 @@ jobs:
           target: google_apis
           profile: pixel_6
           disable-animations: true
+          ram-size: 4096M
+          cores: 4
           script: bash apps/mobile/e2e/run-smoke.sh out/app-release.apk
       - uses: actions/upload-artifact@v4
         if: always()
