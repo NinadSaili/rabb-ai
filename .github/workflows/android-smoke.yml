@@ -57,5 +57,6 @@ jobs:
           name: emulator-smoke-results
           path: |
             launch.png
+            failed.png
             maestro-report.xml
           if-no-files-found: ignore

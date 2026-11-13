@@ -18,7 +18,9 @@ code=$?
 if [ $code -ne 0 ]; then
   echo "--- app log after failed flow"
   adb logcat -d -v brief | grep -E "ReactNativeJS|AndroidRuntime|FATAL" | tail -80
-  echo "--- view hierarchy after failed flow"
-  maestro hierarchy 2>&1 | head -c 6000
+  echo "--- screen text after failed flow (uiautomator)"
+  adb shell uiautomator dump /sdcard/window.xml >/dev/null 2>&1
+  adb shell cat /sdcard/window.xml | grep -oE '(text|content-desc)="[^"]+"' | sort -u | head -40
+  adb exec-out screencap -p > failed.png
 fi
 exit $code
