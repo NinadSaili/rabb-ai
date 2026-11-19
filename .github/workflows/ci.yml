@@ -27,9 +27,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      # Pinned so CI never resolves "latest" through the rate limited GitHub API, and runs the same CLI as the last green run.
+      # Action: supabase/setup-cli v1.7.3, pinned by commit. CLI: official release v3.1.0 (tag exists in supabase/cli, npm provenance from GitHub Actions).
+      # To upgrade, change both deliberately and re-run the database job.
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1.7.3
         with:
-          version: latest
+          version: 3.1.0
+      - name: Print Supabase CLI version
+        run: supabase --version
       - run: supabase start
       - run: supabase db reset
       - run: supabase db lint --level warning
@@ -71,6 +76,10 @@ jobs:
 
   secrets-scan:
     runs-on: ubuntu-latest
+    # Job level only. contents: read for checkout, pull-requests: write so gitleaks can comment on the PR. Nothing repository wide.
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:

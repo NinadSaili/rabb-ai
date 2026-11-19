@@ -6,7 +6,7 @@ import { createDemoApi } from './demoApi';
 import { DEMO_PRAYERS, DEMO_TRANSLATION, DEMO_VERSES } from './fixtures';
 
 const NOW = Date.UTC(2026, 10, 21, 14, 0, 0);
-const sched = { name: 'Morning', kind: 'morning', enabled: true, weekdays: [0, 1, 2, 3, 4, 5, 6], start_minute: 360, end_minute: 720, timer_seconds: 30, unlock_until: 'window_end', idempotency_key: '123e4567-e89b-42d3-a456-426614174001' };
+const sched = { name: 'Morning', kind: 'morning', enabled: true, weekdays: [0, 1, 2, 3, 4, 5, 6], start_minute: 360, end_minute: 720, timer_seconds: 30, unlock_until: 'window_end', idempotency_key: '00000000-0000-4000-8000-000000000001' };
 const setup = () => {
   const kv = new MemoryKeyValueStore();
   return { kv, api: createDemoApi(kv, () => 'America/New_York', () => NOW), blocking: new DemoBlockingService(kv, () => NOW) };
