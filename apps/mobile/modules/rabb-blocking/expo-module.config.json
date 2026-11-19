@@ -1,0 +1,5 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": { "modules": ["RabbBlockingModule"] },
+  "android": { "modules": ["com.rabbai.blocking.RabbBlockingModule"] }
+}

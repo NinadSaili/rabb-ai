@@ -1,0 +1,7 @@
+# Project gitleaks configuration. The default rules stay on. Only known false positives are allowed here.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local storage key names, not credentials"
+regexes = ['''rabb\.bypass\.(counts|log)\.v\d+''']

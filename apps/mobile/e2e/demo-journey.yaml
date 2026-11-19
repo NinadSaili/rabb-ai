@@ -1,0 +1,76 @@
+# Maestro flow for the DEMO MODE build (apk built with DEMO_MODE=1). Run by the emulator-smoke job in .github/workflows/android.yml.
+# The same journey is also covered by src/__tests__/demoJourney.test.tsx (Jest).
+# Run on a device: maestro test apps/mobile/e2e/demo-journey.yaml
+appId: com.rabbai.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "DEMO MODE.*"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Before the scroll, seek the Word."
+    timeout: 30000
+- tapOn: "I am 13 or older"
+- tapOn: "Begin"
+- extendedWaitUntil:
+    visible: "Choose a Bible translation"
+    timeout: 30000
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "Today's verse"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "Continue"
+      enabled: true
+    timeout: 30000
+- tapOn: "Continue"
+- scrollUntilVisible:
+    element: "Social feed \\(demo\\)"
+    timeout: 30000
+- tapOn: "Social feed \\(demo\\)"
+- scrollUntilVisible:
+    element: "Short videos \\(demo\\)"
+    timeout: 30000
+- tapOn: "Short videos \\(demo\\)"
+- scrollUntilVisible:
+    element: "Continue"
+    timeout: 30000
+- tapOn: "Continue"
+- extendedWaitUntil:
+    visible: "When should your ritual start?"
+    timeout: 30000
+- tapOn:
+    text: "Reading timer.*"
+- inputText: "30"
+- hideKeyboard
+- scrollUntilVisible:
+    element: "Save schedule"
+    timeout: 30000
+- tapOn: "Save schedule"
+- extendedWaitUntil:
+    visible: "Restricted \\(simulated\\)"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      text: "Start ritual"
+      enabled: true
+    timeout: 30000
+- tapOn: "Start ritual"
+- tapOn: "I have read this"
+- tapOn: "Amen"
+- tapOn: "Start timer"
+# The countdown reaches 0:00 only after the 30 second timer has really run. (An "enabled" filter is not used:
+# React Native does not reliably map a disabled Pressable to Android enabled=false.)
+- extendedWaitUntil:
+    visible: "0:00"
+    timeout: 90000
+- tapOn: "Finish"
+- extendedWaitUntil:
+    visible: "Well done"
+    timeout: 30000
+- tapOn: "Unlock my apps"
+- extendedWaitUntil:
+    visible: "Unlocked \\(simulated\\).*"
+    timeout: 30000

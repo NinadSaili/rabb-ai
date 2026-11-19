@@ -1,0 +1,89 @@
+name: ci
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+
+jobs:
+  node:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm docs:api && git diff --exit-code docs/API_SPECIFICATION.md
+      - run: pnpm check:release-bundle
+      - run: pnpm audit --audit-level high
+        continue-on-error: true
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Pinned so CI never resolves "latest" through the rate limited GitHub API, and runs the same CLI as the last green run.
+      # Action: supabase/setup-cli v1.7.3, pinned by commit. CLI: official release v3.1.0 (tag exists in supabase/cli, npm provenance from GitHub Actions).
+      # To upgrade, change both deliberately and re-run the database job.
+      - uses: supabase/setup-cli@1dedf2c611547ede7232d26866dd3c56ab903bbb # v1.7.3
+        with:
+          version: 3.1.0
+      - name: Print Supabase CLI version
+        run: supabase --version
+      - run: supabase start
+      - run: supabase db reset
+      - run: supabase db lint --level warning
+      - run: supabase test db
+
+  functions:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_PASSWORD: postgres, POSTGRES_DB: rabb_local }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Apply stubs, migrations and seed to the service database
+        run: |
+          for f in scripts/sql/00-supabase-stub.sql supabase/migrations/*.sql supabase/seed/*.sql; do
+            PGPASSWORD=postgres psql -v ON_ERROR_STOP=1 -q -h 127.0.0.1 -U postgres -d rabb_local -f "$f"
+          done
+      - run: RABB_SKIP_DB_RESET=1 RABB_TEST_DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/rabb_local pnpm functions:test
+      - run: RABB_SKIP_DB_RESET=1 RABB_TEST_DB_URL=postgresql://postgres:postgres@127.0.0.1:5432/rabb_local pnpm ai:evals
+
+  android-logic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - uses: gradle/actions/setup-gradle@v4
+      - run: gradle --no-daemon test
+        working-directory: apps/mobile/modules/rabb-blocking/jvm-tests
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    # Job level only. contents: read for checkout, pull-requests: write so gitleaks can comment on the PR. Nothing repository wide.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

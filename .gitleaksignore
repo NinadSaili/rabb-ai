@@ -1,0 +1,10 @@
+# Gitleaks fingerprint exceptions. One finding per line: <commit>:<path>:<rule>:<line>.
+# A fingerprint contains no secret value. Keep this list as short as possible and explain every entry.
+#
+# generic-api-key on a TEST FIXTURE in commit 4dd64bd (apps/mobile/src/demo/demo.test.ts, line 9).
+# The flagged value was the idempotency_key of a demo test schedule: a made up UUID v4 used only as test data,
+# not a credential. It matched because the rule fires on any "*_key: '<high entropy string>'".
+# The current code uses an obviously fake placeholder, so later commits do not match. The old commit still contains the
+# original line, and history is not rewritten on this branch, so this one historical finding is acknowledged here.
+# A sweep of the full history for private keys, JWTs, and provider token shapes found nothing else.
+4dd64bd1c11b95690952cf74c93fb22767667b6a:apps/mobile/src/demo/demo.test.ts:generic-api-key:9

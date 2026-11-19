@@ -1,0 +1,64 @@
+name: android-smoke
+# Re-runs the emulator smoke test (install, launch, Maestro demo journey) against an APK from an earlier android-apk run,
+# so test changes can be iterated without rebuilding the app.
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['apps/mobile/e2e/**', '.github/workflows/android-smoke.yml']
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'android-apk run id that holds the rabbai-android-apk artifact (default: latest successful run on this branch)'
+        required: false
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Find the APK run
+        id: apk
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RID="${{ github.event.inputs.run_id }}"
+          if [ -z "$RID" ]; then
+            RID=$(gh api "repos/${{ github.repository }}/actions/artifacts?name=rabbai-android-apk&per_page=1" -q '.artifacts[0].workflow_run.id')
+          fi
+          echo "Using android-apk run $RID"
+          echo "run_id=$RID" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          name: rabbai-android-apk
+          path: out
+          run-id: ${{ steps.apk.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          ram-size: 4096M
+          cores: 4
+          script: bash apps/mobile/e2e/run-smoke.sh out/app-release.apk
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emulator-smoke-results
+          path: |
+            launch.png
+            failed.png
+            maestro-report.xml
+          if-no-files-found: ignore
