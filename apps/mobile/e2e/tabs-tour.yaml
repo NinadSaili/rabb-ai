@@ -1,0 +1,29 @@
+# Visual evidence only: opens each of the five tabs after the demo journey has finished onboarding and saves screenshots.
+# Run after demo-journey.yaml in the same emulator session (app state is kept). A failure here does not fail the CI job.
+appId: com.rabbai.app
+---
+- launchApp
+- extendedWaitUntil:
+    visible: "Daily ritual"
+    timeout: 30000
+- takeScreenshot: screenshots/10-tab-home
+- tapOn: "Read"
+- extendedWaitUntil:
+    visible: "Bible reader"
+    timeout: 30000
+- takeScreenshot: screenshots/11-tab-read
+- tapOn: "Pray"
+- extendedWaitUntil:
+    visible: "Prayers are written and reviewed by our editors."
+    timeout: 30000
+- takeScreenshot: screenshots/12-tab-pray
+- tapOn: "Journey"
+- extendedWaitUntil:
+    visible: "Current streak"
+    timeout: 30000
+- takeScreenshot: screenshots/13-tab-journey
+- tapOn: "Profile"
+- extendedWaitUntil:
+    visible: "Delete account and data"
+    timeout: 30000
+- takeScreenshot: screenshots/14-tab-profile

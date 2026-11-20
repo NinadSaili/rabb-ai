@@ -7,6 +7,7 @@ adb shell settings put global hide_error_dialogs 1 || true
 adb install -r "$APK" || exit 1
 adb shell pm grant com.rabbai.app android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 adb logcat -c
+mkdir -p screenshots
 adb shell am start -W -n com.rabbai.app/.MainActivity
 sleep 10
 adb exec-out screencap -p > launch.png
@@ -30,4 +31,9 @@ if [ $code -ne 0 ]; then
   echo "--- app log after failed flow"
   adb logcat -d -v brief | grep -E "ReactNativeJS|AndroidRuntime|FATAL" | tail -80
 fi
+if [ $code -eq 0 ]; then
+  echo "--- tab tour (screenshots only, does not affect the result)"
+  maestro test apps/mobile/e2e/tabs-tour.yaml || echo "tab tour did not complete (non blocking)"
+fi
+cp launch.png screenshots/00-launch.png 2>/dev/null || true
 exit $code

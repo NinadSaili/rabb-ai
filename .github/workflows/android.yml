@@ -103,6 +103,7 @@ jobs:
           name: emulator-smoke-results
           path: |
             launch.png
+            screenshots/*.png
             maestro-report.xml
             ~/.maestro/tests/**
           if-no-files-found: ignore

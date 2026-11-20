@@ -25,9 +25,12 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
   Home: undefined;
-  Habits: undefined;
+  Read: undefined;
+  Pray: undefined;
+  Journey: undefined;
+  Profile: undefined;
+  /** Only mounted when features.premiumUi is on. */
   Learn: undefined;
-  Settings: undefined;
 };
 
 declare global {

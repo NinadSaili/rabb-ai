@@ -104,3 +104,13 @@ pnpm functions:test && pnpm ai:evals
 pnpm --filter @rabb/mobile android:logic-test
 ```
 APK: GitHub Actions `android-apk` (see `docs/ANDROID_BUILD.md`). Emulator test: `android-smoke`.
+
+## Production transformation progress
+
+| Phase | Scope | Label |
+| --- | --- | --- |
+| 1 | Design tokens, AA colour roles, visual components (docs/DESIGN_SYSTEM.md) | IMPLEMENTED |
+| 2 | Five tabs (Home, Read, Pray, Journey, Profile), launcher name Rabb.ai, deep links, simpler Welcome, premium UI hidden behind `features.premiumUi` | IMPLEMENTED (Android launcher label and deep links verified by unit tests and CI emulator only; iOS display name changed in Info.plist, not built here) |
+| 3 to 8 | Home restyle, Bible reader, prayer journal, Journey, Profile settings, Android enforcement, release hardening | NOT_STARTED |
+
+Notes: the Pray tab shows today's editorial prayer read only and never records a completion. Learn, tutor and paywall code and tests remain but are unreachable while `features.premiumUi` is false. Deep links `rabbai://ritual` and `rabbai://privacy` are ignored until onboarding is finished.

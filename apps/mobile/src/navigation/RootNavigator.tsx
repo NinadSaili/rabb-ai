@@ -2,6 +2,10 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { features } from '../config';
+import { Icon } from '../components';
+import { useTheme } from '../theme/ThemeProvider';
+import { PrayTabScreen } from '../screens/PrayTabScreen';
 import { AccountScreen } from '../screens/AccountScreen';
 import { DemoShieldScreen } from '../screens/DemoShieldScreen';
 import { CapabilityScreen } from '../screens/CapabilityScreen';
@@ -24,6 +28,7 @@ import { TimerScreen } from '../screens/ritual/TimerScreen';
 import { SchedulesScreen } from '../screens/SchedulesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SplashScreen } from '../screens/SplashScreen';
+import { fonts } from '../theme/tokens';
 import type { MainTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -31,12 +36,24 @@ const Tabs = createBottomTabNavigator<MainTabParamList>();
 
 function MainTabs() {
   const { t } = useTranslation();
+  const { palette } = useTheme();
   return (
-    <Tabs.Navigator screenOptions={{ headerShown: false }}>
-      <Tabs.Screen name="Home" component={RitualHomeScreen} options={{ title: t('home.title') }} />
-      <Tabs.Screen name="Habits" component={HabitsScreen} options={{ title: t('habits.title') }} />
-      <Tabs.Screen name="Learn" component={LearningHomeScreen as never} options={{ title: t('learning.title') }} />
-      <Tabs.Screen name="Settings" component={SettingsScreen as never} options={{ title: t('settings.title') }} />
+    <Tabs.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: palette.accentText,
+        tabBarInactiveTintColor: palette.textMuted,
+        tabBarStyle: { backgroundColor: palette.surface, borderTopColor: palette.border, minHeight: 64, paddingTop: 6 },
+        tabBarLabelStyle: { fontFamily: fonts.uiMedium, fontSize: 12 },
+        tabBarAllowFontScaling: true,
+      }}
+    >
+      <Tabs.Screen name="Home" component={RitualHomeScreen} options={{ title: t('tabs.home'), tabBarIcon: ({ color }) => <Icon name="home" color={color} /> }} />
+      <Tabs.Screen name="Read" component={ReaderScreen} options={{ title: t('tabs.read'), tabBarIcon: ({ color }) => <Icon name="book" color={color} /> }} />
+      <Tabs.Screen name="Pray" component={PrayTabScreen} options={{ title: t('tabs.pray'), tabBarIcon: ({ color }) => <Icon name="prayer" color={color} /> }} />
+      <Tabs.Screen name="Journey" component={HabitsScreen} options={{ title: t('tabs.journey'), tabBarIcon: ({ color }) => <Icon name="journey" color={color} /> }} />
+      <Tabs.Screen name="Profile" component={SettingsScreen as never} options={{ title: t('tabs.profile'), tabBarIcon: ({ color }) => <Icon name="profile" color={color} /> }} />
+      {features.premiumUi ? <Tabs.Screen name="Learn" component={LearningHomeScreen as never} options={{ title: t('learning.title') }} /> : null}
     </Tabs.Navigator>
   );
 }

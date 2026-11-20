@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert } from 'react-native';
 import { AppText, Button, Card, Heading } from '../components';
+import { features } from '../config';
 import { useServices } from '../serviceContext';
 import type { RootStackParamList } from '../navigation/types';
 import { Screen } from './Screen';
@@ -31,7 +32,7 @@ export function SettingsScreen({ navigation }: { navigation: NativeStackScreenPr
 
   return (
     <Screen>
-      <Heading>{t('settings.title')}</Heading>
+      <Heading>{t('tabs.profile')}</Heading>
       <Card>
         <AppText weight="semibold">{t('settings.translation')}</AppText>
         <AppText muted>{translation}</AppText>
@@ -47,10 +48,9 @@ export function SettingsScreen({ navigation }: { navigation: NativeStackScreenPr
       </Card>
       <Button label={t('settings.permissions')} variant="secondary" onPress={() => navigation.navigate('Capability')} />
       <Button label={t('schedules.title')} variant="secondary" onPress={() => navigation.navigate('Schedules')} />
-      <Button label={t('reader.title')} variant="secondary" onPress={() => navigation.navigate('Reader')} />
       <Button label={t('settings.privacy')} variant="secondary" onPress={() => navigation.navigate('Privacy')} />
       <Button label={t('settings.account')} variant="secondary" onPress={() => navigation.navigate('Account')} />
-      <Button label={t('paywall.title')} variant="secondary" onPress={() => navigation.navigate('Paywall', { source: 'settings' })} />
+      {features.premiumUi ? <Button label={t('paywall.title')} variant="secondary" onPress={() => navigation.navigate('Paywall', { source: 'settings' })} /> : null}
       <Button label={t('settings.deleteAccount')} variant="danger" onPress={remove} />
     </Screen>
   );

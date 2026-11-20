@@ -1,6 +1,7 @@
 /** English strings. Every user facing string goes through i18next. UI language and Bible translation are separate settings. */
 export const en = {
   common: { continue: 'Continue', back: 'Back', retry: 'Try again', cancel: 'Cancel', done: 'Done', loading: 'Loading', close: 'Close' },
+  tabs: { home: 'Home', read: 'Read', pray: 'Pray', journey: 'Journey', profile: 'Profile' },
   splash: { tagline: 'Before the scroll, seek the Word.' },
   onboarding: {
     promiseTitle: 'Before the scroll, seek the Word.',
@@ -11,6 +12,13 @@ export const en = {
     tasteBody: 'Read it now. This is the first step of your daily ritual.',
     appsTitle: 'Choose apps to restrict',
     scheduleTitle: 'When should your ritual start?',
+    howTitle: 'How it works',
+    how1Title: 'Choose your apps',
+    how1Body: 'You pick the apps that pull you away. The list stays on your phone.',
+    how2Title: 'Read and pray',
+    how2Body: 'One verse, one short prayer and an optional reading timer.',
+    how3Title: 'Your apps open',
+    how3Body: 'Finish the ritual and your apps are available again. You can pause restrictions at any time.',
     ageGate: 'I am 13 or older',
     start: 'Begin',
   },
@@ -23,6 +31,7 @@ export const en = {
     streak: '{{count}} day streak',
     steps: { scripture: 'Scripture', prayer: 'Prayer', timer: 'Reading time' },
   },
+  pray: { title: 'Pray', today: 'Today’s prayer', ritualHint: 'You complete your prayer as part of your daily ritual.', goHome: 'Go to today’s ritual', empty: 'Connect once to download today’s prayer.' },
   scripture: { title: 'Scripture', finish: 'I have read this', attribution: 'Translation' },
   prayer: { title: 'Prayer', finish: 'Amen', editorialNote: 'Prayers are written and reviewed by our editors.' },
   timer: { title: 'Reading time', start: 'Start timer', finish: 'Finish', remaining: '{{time}} remaining', tooEarly: 'The timer is not finished yet.' },
@@ -91,7 +100,7 @@ export const en = {
     openSettings: 'Open settings',
     battery: 'Some phones stop background apps to save battery. Steps vary by software version.',
   },
-  habits: { title: 'Habits', current: 'Current streak', longest: 'Longest streak', grace: 'One missed day per week keeps your streak alive.', week: 'This week', last30: 'Completed in the last 30 days' },
+  habits: { title: 'Journey', current: 'Current streak', longest: 'Longest streak', grace: 'One missed day per week keeps your streak alive.', week: 'This week', last30: 'Completed in the last 30 days' },
   schedules: { title: 'Schedules', add: 'Add schedule', morning: 'Morning ritual', custom: 'Custom', untilMidnight: 'Unlock until midnight', timerLabel: 'Reading timer (seconds, optional)', save: 'Save schedule', nextRestriction: 'Next restriction' },
   reader: { title: 'Bible reader', attribution: 'Attribution' },
   learning: { title: 'Learn', locked: 'Premium feature', paths: 'Learning paths', lessons: 'Lessons', startQuiz: 'Start quiz', score: 'Score: {{score}}', correct: 'Correct', incorrect: 'Not quite' },

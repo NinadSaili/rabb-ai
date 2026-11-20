@@ -1,10 +1,9 @@
-import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect, useMemo } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { config } from '../config';
 import { initI18n } from '../i18n';
-import { RootNavigator } from '../navigation/RootNavigator';
+import { AppNavigation } from '../navigation/AppNavigation';
 import { ServicesProvider, createServices } from '../services';
 import { analytics } from '../services/analytics/analytics';
 import { createPostHogSink } from '../services/analytics/posthog';
@@ -28,9 +27,7 @@ export function App() {
         <ThemeProvider readingScale={scale}>
           <ServicesProvider services={services}>
             <QueryClientProvider client={queryClient}>
-              <NavigationContainer>
-                <RootNavigator />
-              </NavigationContainer>
+              <AppNavigation />
             </QueryClientProvider>
           </ServicesProvider>
         </ThemeProvider>

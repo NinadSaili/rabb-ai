@@ -14,6 +14,12 @@ export const config = {
   supportUrl: 'https://rabb.ai/support',
 } as const;
 
+/**
+ * Product surface flags. The MVP is the free daily core only. Learning paths, the AI tutor and the paywall stay in
+ * the codebase (and keep their tests) but are not reachable until this is turned on in a later release.
+ */
+export const features = { premiumUi: false } as const;
+
 export function functionsBaseUrl(): string {
   return `${config.supabaseUrl}/functions/v1/v1`;
 }
