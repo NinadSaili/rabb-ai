@@ -19,7 +19,7 @@ appId: com.rabbai.app
 - takeScreenshot: screenshots/12-tab-pray
 - tapOn: "Journey"
 - extendedWaitUntil:
-    visible: "Current streak"
+    visible: "This week"
     timeout: 30000
 - takeScreenshot: screenshots/13-tab-journey
 - tapOn: "Profile"
