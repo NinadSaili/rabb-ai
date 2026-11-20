@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View, type AccessibilityRole, type StyleProp, type ViewStyle } from 'react-native';
-import { fonts, radius, spacing, typography, motionDuration, motion } from '../theme/tokens';
+import { elevation, fonts, radius, spacing, typography, motionDuration, motion } from '../theme/tokens';
 import { useTheme } from '../theme/ThemeProvider';
 
 const MAX = typography.maxFontSizeMultiplier;
@@ -9,7 +9,8 @@ export function Button(props: { label: string; onPress: () => void; variant?: 'p
   const { palette } = useTheme();
   const v = props.variant ?? 'primary';
   const bg = v === 'primary' ? palette.accent : v === 'danger' ? palette.danger : 'transparent';
-  const fg = v === 'primary' ? palette.onAccent : v === 'danger' ? palette.background : palette.accent;
+  const fg = v === 'primary' ? palette.onAccent : v === 'danger' ? palette.background : palette.accentText;
+  const border = v === 'primary' ? palette.accent : v === 'danger' ? palette.danger : palette.accentText;
   const inactive = props.disabled || props.loading;
   return (
     <Pressable
@@ -20,7 +21,7 @@ export function Button(props: { label: string; onPress: () => void; variant?: 'p
       accessibilityState={{ disabled: !!inactive, busy: !!props.loading }}
       disabled={inactive}
       onPress={props.onPress}
-      style={({ pressed }) => [styles.button, { backgroundColor: bg, borderColor: palette.accent, opacity: inactive ? 0.5 : pressed ? 0.85 : 1 }]}
+      style={({ pressed }) => [styles.button, { backgroundColor: bg, borderColor: border, opacity: inactive ? 0.5 : pressed ? 0.85 : 1 }]}
     >
       <Text maxFontSizeMultiplier={MAX} style={[styles.buttonText, { color: fg }]}>{props.loading ? '…' : props.label}</Text>
     </Pressable>
@@ -30,7 +31,7 @@ export function Button(props: { label: string; onPress: () => void; variant?: 'p
 export function Card({ children, style, label }: { children: React.ReactNode; style?: StyleProp<ViewStyle>; label?: string }) {
   const { palette } = useTheme();
   return (
-    <View accessible={!!label} accessibilityLabel={label} style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }, style]}>
+    <View accessible={!!label} accessibilityLabel={label} style={[styles.card, elevation.card, { backgroundColor: palette.surface, borderColor: palette.border }, style]}>
       {children}
     </View>
   );
@@ -79,7 +80,7 @@ export function StepIndicator({ steps, t }: { steps: { key: string; label: strin
     <View accessible accessibilityRole="progressbar" accessibilityLabel={`${t('a11y.step', { current, total: steps.length, label: cur?.label ?? '' })}, ${cur ? stateWord(cur.state) : ''}`} style={styles.row}>
       {steps.map((s) => (
         <View key={s.key} style={styles.stepItem}>
-          <View style={[styles.dot, { backgroundColor: s.state === 'todo' ? 'transparent' : palette.accent, borderColor: palette.accent }]} />
+          <View style={[styles.dot, { backgroundColor: s.state === 'todo' ? 'transparent' : palette.accent, borderColor: palette.accentText }]} />
           <Text maxFontSizeMultiplier={MAX} style={{ color: s.state === 'current' ? palette.text : palette.textMuted, fontFamily: s.state === 'current' ? fonts.uiSemibold : fonts.ui, fontSize: typography.captionSize }}>{s.label}</Text>
         </View>
       ))}
@@ -161,13 +162,13 @@ export function Skeleton({ width = '100%', height = 20, label = 'Loading' }: { w
     loop.start();
     return () => loop.stop();
   }, [opacity, reduceMotion]);
-  return <Animated.View accessible accessibilityRole="progressbar" accessibilityLabel={label} style={{ width, height, borderRadius: radius.sm, backgroundColor: palette.border, opacity }} />;
+  return <Animated.View accessible accessibilityRole="progressbar" accessibilityLabel={label} style={{ width, height, borderRadius: radius.sm, backgroundColor: palette.surfaceAlt, opacity }} />;
 }
 
 const styles = StyleSheet.create({
-  button: { minHeight: 48, paddingHorizontal: spacing.lg, borderRadius: radius.md, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  button: { minHeight: 52, paddingHorizontal: spacing.lg, borderRadius: radius.pill, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   buttonText: { fontFamily: fonts.uiSemibold, fontSize: typography.bodySize },
-  card: { borderRadius: radius.md, borderWidth: 1, padding: spacing.md, marginVertical: spacing.xs },
+  card: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.md, marginVertical: spacing.xs },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: spacing.sm },
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: spacing.sm },
   stepItem: { alignItems: 'center', flex: 1, gap: spacing.xs },
@@ -175,3 +176,5 @@ const styles = StyleSheet.create({
   badge: { borderWidth: 1, borderRadius: radius.lg, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, alignSelf: 'flex-start' },
   center: { alignItems: 'center', justifyContent: 'center', padding: spacing.lg },
 });
+
+export * from './visuals';
